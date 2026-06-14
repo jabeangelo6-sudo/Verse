@@ -15,6 +15,16 @@ export type Creator = {
   coverGradient: string;
   walletAddress: string;
   tags: string[];
+  // Early Believer
+  earlyBelieverThreshold: number;
+  foundingSubscriberSlots: number;
+  foundingSubscriberPrice: number;
+  // Expert verification
+  expertCredential?: string;
+  expertVerified?: boolean;
+  // Reputation
+  reputationScore: number;
+  predictionAccuracy: number;
 };
 
 export type Post = {
@@ -34,11 +44,28 @@ export type Post = {
   isReposted: boolean;
   isExclusive: boolean;
   tags: string[];
+  // Proof of Humanity
+  humanityScore: number;
+  isHumanVerified: boolean;
+  // Reputation staking
+  hasStake: boolean;
+  stakeAmount?: number;
+  stakeYes?: number;
+  stakeNo?: number;
+  stakeTopic?: string;
+  stakeDeadline?: Date;
+  // Collab
+  collaborators?: { creator: Creator; splitPercent: number }[];
+  // Voice
+  hasVoice: boolean;
+  voiceLanguages?: string[];
+  // Anonymous expert
+  anonymousExpert?: { credential: string; zkProof: string };
 };
 
 export type Notification = {
   id: string;
-  type: "like" | "follow" | "tip" | "comment" | "mention" | "token";
+  type: "like" | "follow" | "tip" | "comment" | "mention" | "token" | "early_believer" | "stake_resolved" | "sub_nft";
   actor: Creator;
   content: string;
   createdAt: Date;
@@ -64,6 +91,11 @@ export const MOCK_CREATORS: Creator[] = [
     coverGradient: "from-purple-900 via-violet-800 to-indigo-900",
     walletAddress: "0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b",
     tags: ["DeFi", "Education", "Web3"],
+    earlyBelieverThreshold: 1000,
+    foundingSubscriberSlots: 100,
+    foundingSubscriberPrice: 0.05,
+    reputationScore: 94,
+    predictionAccuracy: 78,
   },
   {
     id: "2",
@@ -82,6 +114,11 @@ export const MOCK_CREATORS: Creator[] = [
     coverGradient: "from-pink-900 via-rose-800 to-orange-900",
     walletAddress: "0x2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c",
     tags: ["NFT", "Art", "Design"],
+    earlyBelieverThreshold: 1000,
+    foundingSubscriberSlots: 50,
+    foundingSubscriberPrice: 0.08,
+    reputationScore: 88,
+    predictionAccuracy: 65,
   },
   {
     id: "3",
@@ -100,6 +137,13 @@ export const MOCK_CREATORS: Creator[] = [
     coverGradient: "from-cyan-900 via-teal-800 to-emerald-900",
     walletAddress: "0x3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d",
     tags: ["DeFi", "Finance", "Crypto"],
+    earlyBelieverThreshold: 1000,
+    foundingSubscriberSlots: 200,
+    foundingSubscriberPrice: 0.03,
+    reputationScore: 72,
+    predictionAccuracy: 61,
+    expertCredential: "Verified Quantitative Analyst",
+    expertVerified: true,
   },
   {
     id: "4",
@@ -118,6 +162,13 @@ export const MOCK_CREATORS: Creator[] = [
     coverGradient: "from-emerald-900 via-green-800 to-teal-900",
     walletAddress: "0x4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e",
     tags: ["ZK", "Privacy", "Research"],
+    earlyBelieverThreshold: 1000,
+    foundingSubscriberSlots: 75,
+    foundingSubscriberPrice: 0.12,
+    reputationScore: 97,
+    predictionAccuracy: 84,
+    expertCredential: "Verified Cryptography PhD",
+    expertVerified: true,
   },
   {
     id: "5",
@@ -136,6 +187,11 @@ export const MOCK_CREATORS: Creator[] = [
     coverGradient: "from-amber-900 via-yellow-800 to-orange-900",
     walletAddress: "0x5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f",
     tags: ["NFT", "Collecting", "Culture"],
+    earlyBelieverThreshold: 1000,
+    foundingSubscriberSlots: 150,
+    foundingSubscriberPrice: 0.02,
+    reputationScore: 81,
+    predictionAccuracy: 70,
   },
 ];
 
@@ -155,6 +211,16 @@ export const MOCK_POSTS: Post[] = [
     isReposted: false,
     isExclusive: false,
     tags: ["Ethereum", "DeFi", "Restaking"],
+    humanityScore: 98,
+    isHumanVerified: true,
+    hasStake: true,
+    stakeAmount: 500,
+    stakeYes: 1240,
+    stakeNo: 380,
+    stakeTopic: "ETH restaking will exceed $50B TVL by end of 2025",
+    stakeDeadline: new Date("2025-12-31"),
+    hasVoice: true,
+    voiceLanguages: ["en", "es", "zh", "fr", "de", "ja", "ko", "pt", "ar", "hi", "ru", "tr"],
   },
   {
     id: "p2",
@@ -172,6 +238,14 @@ export const MOCK_POSTS: Post[] = [
     isReposted: false,
     isExclusive: false,
     tags: ["NFT", "Art", "Arweave"],
+    humanityScore: 99,
+    isHumanVerified: true,
+    hasStake: false,
+    collaborators: [
+      { creator: MOCK_CREATORS[4], splitPercent: 30 },
+    ],
+    hasVoice: true,
+    voiceLanguages: ["en", "zh", "ja", "ko", "fr"],
   },
   {
     id: "p3",
@@ -188,6 +262,17 @@ export const MOCK_POSTS: Post[] = [
     isReposted: true,
     isExclusive: false,
     tags: ["ZK", "Privacy", "Identity"],
+    humanityScore: 97,
+    isHumanVerified: true,
+    hasStake: true,
+    stakeAmount: 2000,
+    stakeYes: 3100,
+    stakeNo: 420,
+    stakeTopic: "ZK proofs will replace KYC at 3+ major banks by 2029",
+    stakeDeadline: new Date("2029-01-01"),
+    hasVoice: true,
+    voiceLanguages: ["en", "es", "de", "fr", "ar", "hi"],
+    anonymousExpert: { credential: "Verified EU Regulatory Counsel", zkProof: "0xzkp_abc123" },
   },
   {
     id: "p4",
@@ -204,6 +289,10 @@ export const MOCK_POSTS: Post[] = [
     isReposted: false,
     isExclusive: true,
     tags: ["DeFi", "Yield", "Strategy"],
+    humanityScore: 95,
+    isHumanVerified: true,
+    hasStake: false,
+    hasVoice: false,
   },
   {
     id: "p5",
@@ -221,13 +310,18 @@ export const MOCK_POSTS: Post[] = [
     isReposted: false,
     isExclusive: false,
     tags: ["NFT", "History", "Collecting"],
+    humanityScore: 72,
+    isHumanVerified: false,
+    hasStake: false,
+    hasVoice: true,
+    voiceLanguages: ["en", "ja", "ko", "zh"],
   },
 ];
 
-export const MOCK_NOTIFICATIONS: Notification[] = [
+export const MOCK_NOTIFICATIONS = [
   {
     id: "n1",
-    type: "tip",
+    type: "tip" as const,
     actor: MOCK_CREATORS[1],
     content: "tipped you",
     createdAt: new Date(Date.now() - 1000 * 60 * 5),
@@ -236,48 +330,41 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
   },
   {
     id: "n2",
-    type: "follow",
+    type: "early_believer" as const,
     actor: MOCK_CREATORS[3],
-    content: "started following you",
+    content: "earned an Early Believer badge on your profile — they followed when you had 847 followers",
     createdAt: new Date(Date.now() - 1000 * 60 * 18),
     read: false,
   },
   {
     id: "n3",
-    type: "like",
+    type: "stake_resolved" as const,
     actor: MOCK_CREATORS[0],
-    content: "liked your post",
+    content: "Your stake on \"ETH hits $10k\" resolved — you were right! +240 SAGE",
     createdAt: new Date(Date.now() - 1000 * 60 * 45),
     read: false,
+    amount: 240,
   },
   {
     id: "n4",
-    type: "comment",
+    type: "sub_nft" as const,
     actor: MOCK_CREATORS[2],
-    content: "commented: \"This is exactly what I've been thinking about. The trust marketplace model is 🔥\"",
+    content: "minted a Founding Subscriber NFT (#47 of 200) on your profile",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2),
     read: true,
+    amount: 0.03,
   },
   {
     id: "n5",
-    type: "token",
-    actor: MOCK_CREATORS[4],
-    content: "bought 50 of your tokens",
+    type: "follow" as const,
+    actor: MOCK_CREATORS[0],
+    content: "started following you",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4),
-    read: true,
-    amount: 4.20,
-  },
-  {
-    id: "n6",
-    type: "mention",
-    actor: MOCK_CREATORS[1],
-    content: "mentioned you in a post",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 7),
     read: true,
   },
 ];
 
-export const ME: Creator = {
+export const ME = {
   id: "me",
   username: "you",
   displayName: "Your Name",
@@ -294,4 +381,9 @@ export const ME: Creator = {
   coverGradient: "from-violet-900 via-purple-800 to-indigo-900",
   walletAddress: "0x0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b",
   tags: ["Creator", "Web3"],
+  earlyBelieverThreshold: 1000,
+  foundingSubscriberSlots: 100,
+  foundingSubscriberPrice: 0.02,
+  reputationScore: 76,
+  predictionAccuracy: 68,
 };
