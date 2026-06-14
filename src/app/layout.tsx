@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import config from "@/lib/config";
 
 export const metadata: Metadata = {
-  title: "Verse — Own Your Audience",
-  description: "The decentralized creator economy. Your content, your audience, your earnings. Forever.",
+  title: `${config.name} — ${config.tagline}`,
+  description: config.description,
   keywords: ["creator economy", "web3", "decentralized", "censorship resistant"],
 };
 
