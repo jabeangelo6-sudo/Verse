@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/ui/Avatar";
 import { ME } from "@/lib/mock-data";
 import { formatCount } from "@/lib/utils";
+import config from "@/lib/config";
 
 const NAV_ITEMS = [
   { href: "/", icon: Home, label: "Home" },
@@ -25,7 +26,7 @@ export function DesktopSidebar() {
         <div className="w-8 h-8 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow-sm">
           <Zap size={16} className="text-white fill-white" />
         </div>
-        <span className="text-xl font-bold font-display gradient-text">Verse</span>
+        <span className="text-xl font-bold font-display gradient-text">{config.name}</span>
       </Link>
 
       {/* Nav */}
