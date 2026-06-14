@@ -3,6 +3,7 @@ import { Search, Zap } from "lucide-react";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
 import { ME } from "@/lib/mock-data";
+import config from "@/lib/config";
 
 type TopBarProps = {
   title?: string;
@@ -18,7 +19,7 @@ export function TopBar({ title, showSearch = false, showLogo = true }: TopBarPro
           <div className="w-7 h-7 rounded-lg bg-gradient-primary flex items-center justify-center">
             <Zap size={14} className="text-white fill-white" />
           </div>
-          <span className="text-lg font-bold font-display gradient-text">Verse</span>
+          <span className="text-lg font-bold font-display gradient-text">{config.name}</span>
         </Link>
       ) : (
         <h1 className="text-lg font-bold text-text-primary">{title}</h1>
