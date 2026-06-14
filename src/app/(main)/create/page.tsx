@@ -1,9 +1,10 @@
 "use client";
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Image as ImageIcon, Lock, Globe, Sparkles, X, Loader2, Send, Zap, Clock } from "lucide-react";
+import { ArrowLeft, Image as ImageIcon, Lock, Globe, Sparkles, Loader2, Send, Zap, Clock, Target } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Avatar } from "@/components/ui/Avatar";
+import { CollabSplit } from "@/components/features/CollabSplit";
 import { useToast } from "@/components/ui/Toast";
 import { ME } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
@@ -172,6 +173,16 @@ export default function CreatePage() {
                 {action.label}
               </button>
             ))}
+          </div>
+
+          {/* Collab split */}
+          <CollabSplit />
+
+          {/* Reputation stake toggle */}
+          <div className="flex items-center gap-2">
+            <button className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-white/[0.04] border border-border hover:border-border-strong text-text-muted hover:text-text-secondary transition-all">
+              <Target size={13} className="text-accent-amber" /> Stake reputation on this claim
+            </button>
           </div>
 
           {/* Bottom toolbar */}
