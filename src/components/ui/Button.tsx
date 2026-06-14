@@ -7,7 +7,7 @@ import { type ButtonHTMLAttributes, type ReactNode } from "react";
 type Variant = "primary" | "secondary" | "ghost" | "danger" | "gradient";
 type Size = "sm" | "md" | "lg";
 
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> & {
   variant?: Variant;
   size?: Size;
   loading?: boolean;
@@ -37,13 +37,18 @@ export function Button({
   className,
   children,
   disabled,
-  ...props
+  onClick,
+  type = "button",
+  ...rest
 }: ButtonProps) {
   return (
     <motion.button
       whileTap={{ scale: 0.97 }}
       whileHover={{ y: -1 }}
       transition={{ duration: 0.15 }}
+      type={type}
+      onClick={onClick as any}
+      disabled={disabled || loading}
       className={cn(
         "inline-flex items-center justify-center font-semibold transition-all duration-200 cursor-pointer select-none",
         "disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none",
@@ -52,7 +57,6 @@ export function Button({
         fullWidth && "w-full",
         className
       )}
-      disabled={disabled || loading}
     >
       {loading && <Loader2 className="animate-spin" size={14} />}
       {children}
