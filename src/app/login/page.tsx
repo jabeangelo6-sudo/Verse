@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Zap, Mail, ArrowRight, Wallet, Shield, Users, Globe, CheckCircle } from "lucide-react";
+import config from "@/lib/config";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
 import { ToastProvider } from "@/components/ui/Toast";
@@ -222,7 +223,7 @@ function OnboardingInner() {
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
               <h2 className="text-3xl font-bold font-display text-text-primary mb-2">You're in.</h2>
-              <p className="text-text-secondary mb-2">Welcome to Verse, <strong>@{username}</strong></p>
+              <p className="text-text-secondary mb-2">Welcome to {config.name}, <strong>@{username}</strong></p>
               <p className="text-sm text-text-muted mb-8">Your wallet was created automatically. Your audience is now portable and on-chain.</p>
               <Link href="/">
                 <Button variant="gradient" size="lg" className="gap-2">
