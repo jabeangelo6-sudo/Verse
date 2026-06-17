@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { db, posts, users } from "@/lib/db";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, sql } from "drizzle-orm";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     // Increment user post count
     await db
       .update(users)
-      .set({ postCount: db.$count(posts, eq(posts.creatorId, creatorId)) as any })
+      .set({ postCount: sql`(SELECT COUNT(*) FROM posts WHERE creator_id = ${creatorId})` })
       .where(eq(users.id, creatorId));
 
     return NextResponse.json({ post }, { status: 201 });
