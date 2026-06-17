@@ -1,5 +1,4 @@
 /** @type {import('next').NextConfig} */
-// env: NEXT_PUBLIC_PRIVY_APP_ID, DATABASE_URL
 const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
