@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Search, TrendingUp, TrendingDown, BadgeCheck, Flame, Zap } from "lucide-react";
+import { Search, BadgeCheck, Flame, Users } from "lucide-react";
 import { TopBar } from "@/components/nav/TopBar";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
@@ -148,20 +148,15 @@ export default function ExplorePage() {
             </div>
           </section>
 
-          {/* Top earners */}
+          {/* Top creators */}
           <section className="px-4 mb-6">
             <h2 className="text-sm font-semibold text-text-secondary mb-3 flex items-center gap-2">
-              <Zap size={14} className="text-accent-amber fill-accent-amber" /> Top creators this week
+              <Users size={14} className="text-primary-light" /> Top creators this week
             </h2>
             <div className="space-y-2">
-              {[...creators].sort((a, b) => b.earnings - a.earnings).slice(0, 3).map((creator, i) => (
-                <motion.div
-                  key={creator.id}
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.06 }}
-                  className="flex items-center gap-3 p-3 rounded-xl card"
-                >
+              {[...creators].sort((a, b) => b.followers - a.followers).slice(0, 3).map((creator, i) => (
+                <motion.div key={creator.id} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.06 }} className="flex items-center gap-3 p-3 rounded-xl card">
                   <span className="text-lg font-bold text-text-muted w-6 text-center">{i + 1}</span>
                   <Link href={`/${creator.username}`} className="flex items-center gap-2.5 flex-1 min-w-0">
                     <Avatar src={creator.avatar} alt={creator.displayName} size="sm" />
@@ -170,16 +165,9 @@ export default function ExplorePage() {
                         <span className="text-sm font-semibold text-text-primary truncate">{creator.displayName}</span>
                         {creator.verified && <BadgeCheck size={13} className="text-primary-light flex-shrink-0" />}
                       </div>
-                      <div className="text-xs text-text-muted">{formatUSD(creator.earnings)} earned</div>
+                      <div className="text-xs text-text-muted">{formatCount(creator.followers)} followers</div>
                     </div>
                   </Link>
-                  <div className="text-right flex-shrink-0">
-                    <div className="text-xs font-bold text-text-primary">${creator.tokenPrice}</div>
-                    <div className={cn("text-[10px] font-semibold flex items-center gap-0.5 justify-end", creator.tokenChange > 0 ? "text-accent-green" : "text-accent-rose")}>
-                      {creator.tokenChange > 0 ? <TrendingUp size={9} /> : <TrendingDown size={9} />}
-                      {Math.abs(creator.tokenChange)}%
-                    </div>
-                  </div>
                 </motion.div>
               ))}
             </div>
@@ -225,19 +213,10 @@ export default function ExplorePage() {
 
               <p className="text-sm text-text-secondary mb-3 line-clamp-2">{creator.bio}</p>
 
-              <div className="flex items-center justify-between">
-                <div className="flex gap-1.5">
-                  {creator.tags.slice(0, 3).map((tag) => (
-                    <Badge key={tag} variant="ghost">{tag}</Badge>
-                  ))}
-                </div>
-                <div className="text-right">
-                  <div className="text-xs font-bold text-text-primary">{creator.tokenSymbol} ${creator.tokenPrice}</div>
-                  <div className={cn("text-[10px] font-semibold flex items-center gap-0.5 justify-end", creator.tokenChange > 0 ? "text-accent-green" : "text-accent-rose")}>
-                    {creator.tokenChange > 0 ? <TrendingUp size={9} /> : <TrendingDown size={9} />}
-                    {Math.abs(creator.tokenChange)}%
-                  </div>
-                </div>
+              <div className="flex gap-1.5 flex-wrap">
+                {creator.tags.slice(0, 3).map((tag) => (
+                  <Badge key={tag} variant="ghost">{tag}</Badge>
+                ))}
               </div>
             </motion.div>
           ))}
