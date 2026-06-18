@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link2, Copy, Check, Twitter, MessageCircle, Gift } from "lucide-react";
+import { Link2, Copy, Check, ExternalLink, MessageCircle, Gift } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import config from "@/lib/config";
 
@@ -59,7 +59,7 @@ export function InviteLoop({ username, inviteCount = 0 }: { username: string; in
       {/* Share buttons */}
       <div className="flex gap-2">
         <Button variant="secondary" size="sm" fullWidth onClick={shareTwitter}>
-          <Twitter size={13} /> Post on X
+          <ExternalLink size={13} /> Post on X
         </Button>
         <Button variant="secondary" size="sm" fullWidth onClick={shareWhatsApp}>
           <MessageCircle size={13} /> WhatsApp
