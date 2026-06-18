@@ -15,8 +15,10 @@ import { useToast } from "@/components/ui/Toast";
 import { type Post } from "@/lib/mock-data";
 import { formatCount, timeAgo } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/hooks/useAuth";
 
 export function FeedPost({ post }: { post: Post }) {
+  const { user } = useAuth();
   const [liked, setLiked] = useState(post.isLiked);
   const [likeCount, setLikeCount] = useState(post.likes);
   const [reposted, setReposted] = useState(post.isReposted);
@@ -27,9 +29,22 @@ export function FeedPost({ post }: { post: Post }) {
   const [shareCopied, setShareCopied] = useState(false);
   const { toast } = useToast();
 
-  const handleLike = () => {
-    setLiked(v => !v);
-    setLikeCount(n => liked ? n - 1 : n + 1);
+  const handleLike = async () => {
+    const wasLiked = liked;
+    setLiked(!wasLiked);
+    setLikeCount(n => wasLiked ? n - 1 : n + 1);
+    if (!user) return;
+    try {
+      await fetch("/api/likes", {
+        method: wasLiked ? "DELETE" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id, postId: post.id }),
+      });
+    } catch {
+      // revert on error
+      setLiked(wasLiked);
+      setLikeCount(n => wasLiked ? n + 1 : n - 1);
+    }
   };
 
   const handleRepost = () => {
