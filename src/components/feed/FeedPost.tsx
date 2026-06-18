@@ -62,7 +62,7 @@ export function FeedPost({ post }: { post: Post }) {
   };
 
   const postUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/${post.creator.username}`;
-  const shareText = `"${post.content.slice(0, 120)}${post.content.length > 120 ? "…" : ""}"\n\n— @${post.creator.username} on Verse, the censorship-proof creator platform.\n\nOwn your audience forever 👇`;
+  const shareText = `"${post.content.slice(0, 120)}${post.content.length > 120 ? "…" : ""}"\n\n— @${post.creator.username} on Verse\n\nThe platform where creators actually own their audience 👇`;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(postUrl);
@@ -103,7 +103,7 @@ export function FeedPost({ post }: { post: Post }) {
               </span>
             ))}
             {" · "}
-            <span className="text-text-muted">Revenue split on-chain</span>
+            <span className="text-text-muted">Revenue split automatically</span>
           </span>
         </div>
       )}
@@ -126,7 +126,7 @@ export function FeedPost({ post }: { post: Post }) {
           </div>
         </Link>
         <div className="flex items-center gap-1.5">
-          {post.isExclusive && <Badge variant="amber" className="gap-1"><Lock size={9} /> Exclusive</Badge>}
+          {post.isExclusive && <Badge variant="amber" className="gap-1"><Lock size={9} /> Members</Badge>}
           <HumanityBadge score={post.humanityScore} isVerified={post.isHumanVerified} compact />
           <button className="w-7 h-7 rounded-lg hover:bg-white/[0.05] flex items-center justify-center text-text-muted opacity-0 group-hover:opacity-100 transition-all">
             <MoreHorizontal size={15} />
@@ -148,9 +148,9 @@ export function FeedPost({ post }: { post: Post }) {
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-bg-base/60 backdrop-blur-sm rounded-xl gap-3 border border-accent-amber/20">
             <Lock size={20} className="text-accent-amber" />
             <p className="text-sm font-semibold text-text-primary text-center px-4">
-              Hold 100+ <span className="text-accent-amber font-bold">{post.creator.tokenSymbol}</span> to unlock
+              This is <span className="text-accent-amber font-bold">members-only</span> content
             </p>
-            <Button variant="gradient" size="sm" className="gap-1.5"><TrendingUp size={13} /> Buy {post.creator.tokenSymbol}</Button>
+            <Button variant="gradient" size="sm" className="gap-1.5"><TrendingUp size={13} /> Become a member</Button>
           </div>
         </div>
       ) : (
