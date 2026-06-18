@@ -45,7 +45,7 @@ export default function CreatePage() {
     await new Promise(r => setTimeout(r, 1500));
     const transforms: Record<AIAction, string> = {
       improve: content + "\n\n[AI: polished for clarity and engagement]",
-      expand: content + "\n\nTo understand why this matters: the decentralized web changes who controls information. When your content lives on-chain, no single entity can erase it.",
+      expand: content + "\n\nTo understand why this matters: the way we share information is shifting. When your content and audience belong to you — not a platform — no one can take them away.",
       shorten: content.split(" ").slice(0, Math.ceil(content.split(" ").length * 0.6)).join(" ") + "...",
       hooks: "Here's something most people don't realize:\n\n" + content,
     };
@@ -122,7 +122,7 @@ export default function CreatePage() {
                     ? v === "public" ? "bg-primary/15 text-primary-light border-primary/25" : "bg-accent-amber/15 text-accent-amber border-accent-amber/25"
                     : "bg-transparent text-text-muted border-border hover:border-border-strong")}>
                 {v === "public" ? <Globe size={11} /> : <Lock size={11} />}
-                {v === "public" ? "Public" : "Token-gated"}
+                {v === "public" ? "Public" : "Members only"}
               </button>
             ))}
           </div>
@@ -131,7 +131,7 @@ export default function CreatePage() {
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
               className="rounded-xl bg-accent-amber/8 border border-accent-amber/15 p-3 text-sm text-text-secondary flex items-center gap-2">
               <Zap size={14} className="text-accent-amber fill-accent-amber flex-shrink-0" />
-              Only your token holders will see this post.
+              Only your members will see this post.
             </motion.div>
           )}
 
@@ -177,7 +177,7 @@ export default function CreatePage() {
           <div className="divider" />
           <p className="text-xs text-text-muted flex items-center gap-1.5">
             <Globe size={11} className="text-accent-cyan" />
-            Content stored on the decentralized web — censorship-proof.
+            Your content belongs to you — always.
           </p>
         </div>
       </div>
