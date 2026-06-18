@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-import { db, posts, users, follows } from "@/lib/db";
+import { db, posts, users, follows, likes } from "@/lib/db";
 import { eq, desc, inArray } from "drizzle-orm";
 
 export async function GET(req: NextRequest) {
@@ -12,17 +12,13 @@ export async function GET(req: NextRequest) {
   let feedPosts;
 
   if (tab === "following" && userId) {
-    // Get IDs the user follows
     const followingRows = await db
       .select({ followingId: follows.followingId })
       .from(follows)
       .where(eq(follows.followerId, userId));
 
     const followingIds = followingRows.map(r => r.followingId);
-
-    if (followingIds.length === 0) {
-      return NextResponse.json({ posts: [] });
-    }
+    if (followingIds.length === 0) return NextResponse.json({ posts: [] });
 
     feedPosts = await db
       .select({ post: posts, creator: users })
@@ -32,7 +28,6 @@ export async function GET(req: NextRequest) {
       .orderBy(desc(posts.createdAt))
       .limit(limit);
   } else {
-    // For You / Trending — return all recent posts
     feedPosts = await db
       .select({ post: posts, creator: users })
       .from(posts)
@@ -41,5 +36,19 @@ export async function GET(req: NextRequest) {
       .limit(limit);
   }
 
-  return NextResponse.json({ posts: feedPosts });
+  // Attach isLiked flag for each post if user is signed in
+  if (userId && feedPosts.length > 0) {
+    const postIds = feedPosts.map(r => r.post.id);
+    const userLikes = await db
+      .select({ postId: likes.postId })
+      .from(likes)
+      .where(eq(likes.userId, userId));
+
+    const likedSet = new Set(userLikes.map(l => l.postId));
+    return NextResponse.json({
+      posts: feedPosts.map(r => ({ ...r, isLiked: likedSet.has(r.post.id) })),
+    });
+  }
+
+  return NextResponse.json({ posts: feedPosts.map(r => ({ ...r, isLiked: false })) });
 }
