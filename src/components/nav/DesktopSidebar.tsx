@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Compass, PlusSquare, Bell, DollarSign, Settings, Zap, LogOut, Trophy, FileText, Brain, Shield, BarChart3 } from "lucide-react";
+import { Home, Compass, PlusSquare, Bell, DollarSign, Settings, Zap, LogOut, Crown, FileText, Brain, Shield, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/ui/Avatar";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -17,7 +17,7 @@ const MAIN_NAV = [
 ];
 
 const EARN_NAV = [
-  { href: "/bounties", icon: Trophy, label: "Viral Bounties" },
+  { href: "/inner-circle", icon: Crown, label: "Inner Circle" },
   { href: "/licensing", icon: FileText, label: "Licensing" },
   { href: "/brain-trust", icon: Brain, label: "Brain Trust" },
   { href: "/whistle", icon: Shield, label: "Verified Leaks" },
