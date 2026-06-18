@@ -1,0 +1,18 @@
+{
+  "accountAssociation": {
+    "header": "REPLACE_WITH_HEADER_FROM_WARPCAST",
+    "payload": "REPLACE_WITH_PAYLOAD_FROM_WARPCAST",
+    "signature": "REPLACE_WITH_SIGNATURE_FROM_WARPCAST"
+  },
+  "frame": {
+    "version": "1",
+    "name": "Verse",
+    "iconUrl": "https://verse-po2e.vercel.app/icon.png",
+    "homeUrl": "https://verse-po2e.vercel.app",
+    "imageUrl": "https://verse-po2e.vercel.app/og.png",
+    "buttonTitle": "Open Verse",
+    "splashImageUrl": "https://verse-po2e.vercel.app/og.png",
+    "splashBackgroundColor": "#07070f",
+    "webhookUrl": "https://verse-po2e.vercel.app/api/farcaster/webhook"
+  }
+}
