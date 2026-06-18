@@ -1,7 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import config from "@/lib/config";
-import { AppProviders } from "@/components/providers/AppProviders";
+import dynamic from "next/dynamic";
+
+const AppProviders = dynamic(
+  () => import("@/components/providers/AppProviders").then(m => m.AppProviders),
+  { ssr: false, loading: () => null }
+);
 
 export const metadata: Metadata = {
   title: `${config.name} — ${config.tagline}`,
