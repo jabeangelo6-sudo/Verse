@@ -3,7 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, MessageCircle, Repeat2, Zap, MoreHorizontal, Lock, BadgeCheck, TrendingUp, Users2 } from "lucide-react";
+import { Heart, MessageCircle, Repeat2, Zap, MoreHorizontal, Lock, BadgeCheck, TrendingUp, Users2, Share2, Twitter, Copy, Check } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -23,6 +23,8 @@ export function FeedPost({ post }: { post: Post }) {
   const [repostCount, setRepostCount] = useState(post.reposts);
   const [showTip, setShowTip] = useState(false);
   const [tipping, setTipping] = useState(false);
+  const [showShare, setShowShare] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
   const { toast } = useToast();
 
   const handleLike = () => {
@@ -42,6 +44,25 @@ export function FeedPost({ post }: { post: Post }) {
     setTipping(false);
     setShowTip(false);
     toast("tip", `Tipped ${post.creator.displayName}`, `$${amount}`);
+  };
+
+  const postUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/${post.creator.username}`;
+  const shareText = `"${post.content.slice(0, 120)}${post.content.length > 120 ? "…" : ""}"\n\n— @${post.creator.username} on Verse, the censorship-proof creator platform.\n\nOwn your audience forever 👇`;
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(postUrl);
+    setShareCopied(true);
+    setTimeout(() => setShareCopied(false), 2000);
+  };
+
+  const handleShareTwitter = () => {
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(postUrl)}`, "_blank");
+    setShowShare(false);
+  };
+
+  const handleShareWhatsApp = () => {
+    window.open(`https://wa.me/?text=${encodeURIComponent(shareText + "\n" + postUrl)}`, "_blank");
+    setShowShare(false);
   };
 
   return (
@@ -173,6 +194,34 @@ export function FeedPost({ post }: { post: Post }) {
             <Repeat2 size={15} />
             <span>{formatCount(repostCount)}</span>
           </motion.button>
+
+          {/* Share / Content arbitrage */}
+          <div className="relative">
+            <button onClick={() => setShowShare(v => !v)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-text-muted hover:text-primary-light hover:bg-primary/8 transition-all">
+              <Share2 size={15} />
+            </button>
+            <AnimatePresence>
+              {showShare && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9, y: 8 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 8 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  className="absolute bottom-10 left-0 glass border border-border rounded-2xl p-3 shadow-card-hover z-10 min-w-[180px] space-y-1"
+                >
+                  <button onClick={handleShareTwitter} className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-white/[0.06] text-xs text-text-secondary hover:text-text-primary transition-colors">
+                    <Twitter size={13} className="text-sky-400" /> Post on X / Twitter
+                  </button>
+                  <button onClick={handleShareWhatsApp} className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-white/[0.06] text-xs text-text-secondary hover:text-text-primary transition-colors">
+                    <MessageCircle size={13} className="text-accent-green" /> Share on WhatsApp
+                  </button>
+                  <button onClick={handleCopyLink} className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-white/[0.06] text-xs text-text-secondary hover:text-text-primary transition-colors">
+                    {shareCopied ? <Check size={13} className="text-accent-green" /> : <Copy size={13} />}
+                    {shareCopied ? "Copied!" : "Copy link"}
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
         {/* Tip */}
