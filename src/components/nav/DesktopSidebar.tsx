@@ -1,14 +1,14 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Compass, PlusSquare, Bell, Wallet, Settings, Zap, LogOut } from "lucide-react";
+import { Home, Compass, PlusSquare, Bell, Wallet, Settings, Zap, LogOut, Trophy, FileText, Brain, Shield, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/ui/Avatar";
-import { ME } from "@/lib/mock-data";
+import { useAuth } from "@/lib/hooks/useAuth";
 import { formatCount } from "@/lib/utils";
 import config from "@/lib/config";
 
-const NAV_ITEMS = [
+const MAIN_NAV = [
   { href: "/", icon: Home, label: "Home" },
   { href: "/explore", icon: Compass, label: "Explore" },
   { href: "/create", icon: PlusSquare, label: "Create" },
@@ -16,11 +16,20 @@ const NAV_ITEMS = [
   { href: "/wallet", icon: Wallet, label: "Wallet" },
 ];
 
+const EARN_NAV = [
+  { href: "/bounties", icon: Trophy, label: "Viral Bounties" },
+  { href: "/licensing", icon: FileText, label: "Licensing" },
+  { href: "/brain-trust", icon: Brain, label: "Brain Trust" },
+  { href: "/whistle", icon: Shield, label: "Verified Leaks" },
+  { href: "/derivatives", icon: BarChart3, label: "Content Futures" },
+];
+
 export function DesktopSidebar() {
   const pathname = usePathname();
+  const { user } = useAuth();
 
   return (
-    <aside className="hidden md:flex flex-col w-64 h-screen sticky top-0 border-r border-border px-4 py-6 gap-2">
+    <aside className="hidden md:flex flex-col w-64 h-screen sticky top-0 border-r border-border px-4 py-6 gap-2 overflow-y-auto no-scrollbar">
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2.5 px-3 mb-6">
         <div className="w-8 h-8 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow-sm">
@@ -29,21 +38,16 @@ export function DesktopSidebar() {
         <span className="text-xl font-bold font-display gradient-text">{config.name}</span>
       </Link>
 
-      {/* Nav */}
-      <nav className="flex flex-col gap-1 flex-1">
-        {NAV_ITEMS.map(({ href, icon: Icon, label, badge }) => {
+      {/* Main nav */}
+      <nav className="flex flex-col gap-1">
+        {MAIN_NAV.map(({ href, icon: Icon, label, badge }) => {
           const active = pathname === href;
           return (
-            <Link
-              key={href}
-              href={href}
+            <Link key={href} href={href}
               className={cn(
                 "flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group relative",
-                active
-                  ? "bg-primary/10 text-primary-light"
-                  : "text-text-secondary hover:bg-white/[0.04] hover:text-text-primary"
-              )}
-            >
+                active ? "bg-primary/10 text-primary-light" : "text-text-secondary hover:bg-white/[0.04] hover:text-text-primary"
+              )}>
               <Icon size={20} strokeWidth={active ? 2.5 : 1.8} />
               <span className="font-medium">{label}</span>
               {badge && (
@@ -57,26 +61,53 @@ export function DesktopSidebar() {
         })}
       </nav>
 
+      {/* Earn section */}
+      <div className="mt-4 pt-4 border-t border-border">
+        <div className="px-3 mb-2">
+          <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Earn & Build</span>
+        </div>
+        <nav className="flex flex-col gap-1">
+          {EARN_NAV.map(({ href, icon: Icon, label }) => {
+            const active = pathname === href || pathname.startsWith(href + "/");
+            return (
+              <Link key={href} href={href}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 relative",
+                  active ? "bg-accent-amber/10 text-accent-amber" : "text-text-secondary hover:bg-white/[0.04] hover:text-text-primary"
+                )}>
+                <Icon size={17} strokeWidth={active ? 2.5 : 1.8} />
+                <span className="text-sm font-medium">{label}</span>
+                {active && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-accent-amber rounded-full" />}
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
+
+      <div className="flex-1" />
+
       {/* Creator stats mini */}
       <div className="card p-3 mb-4">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs text-text-muted font-medium">Your earnings</span>
           <span className="badge badge-green text-[10px]">Live</span>
         </div>
-        <div className="text-lg font-bold text-text-primary">$1,820.50</div>
+        <div className="text-lg font-bold text-text-primary">$0.00</div>
         <div className="flex gap-3 mt-2 text-xs text-text-muted">
-          <span>{formatCount(ME.followers)} followers</span>
-          <span>·</span>
-          <span>{ME.tokenSymbol} ${ME.tokenPrice}</span>
+          <span>{user ? formatCount(0) + " followers" : "Sign in"}</span>
         </div>
       </div>
 
       {/* Profile footer */}
       <div className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-white/[0.04] transition-colors cursor-pointer group">
-        <Avatar src={ME.avatar} alt={ME.displayName} size="sm" />
+        <Avatar
+          src={user?.avatar ?? `https://api.dicebear.com/7.x/avataaars/svg?seed=default`}
+          alt={user?.displayName ?? "You"}
+          size="sm"
+        />
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-semibold text-text-primary truncate">{ME.displayName}</div>
-          <div className="text-xs text-text-muted">@{ME.username}</div>
+          <div className="text-sm font-semibold text-text-primary truncate">{user?.displayName ?? "Sign in"}</div>
+          <div className="text-xs text-text-muted">{user?.username ? `@${user.username}` : "to get started"}</div>
         </div>
         <LogOut size={15} className="text-text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
       </div>
