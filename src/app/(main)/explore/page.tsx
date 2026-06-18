@@ -1,14 +1,15 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Search, TrendingUp, TrendingDown, BadgeCheck, Flame, Zap } from "lucide-react";
 import { TopBar } from "@/components/nav/TopBar";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { MOCK_CREATORS } from "@/lib/mock-data";
+import { MOCK_CREATORS, type Creator } from "@/lib/mock-data";
 import { formatCount, formatUSD } from "@/lib/utils";
 import { useToast } from "@/components/ui/Toast";
+import { useAuth } from "@/lib/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -21,31 +22,90 @@ const TRENDING_TOPICS = [
   { tag: "SocialFi", posts: 2780, hot: false },
 ];
 
+function dbUserToCreator(u: Record<string, unknown>): Creator {
+  return {
+    id: String(u.id ?? ""),
+    username: String(u.username ?? "unknown"),
+    displayName: String(u.displayName ?? u.display_name ?? "Creator"),
+    avatar: String(u.avatar ?? `https://api.dicebear.com/7.x/avataaars/svg?seed=${u.id}`),
+    bio: String(u.bio ?? ""),
+    verified: Boolean(u.verified),
+    followers: Number(u.followerCount ?? u.follower_count ?? 0),
+    following: Number(u.followingCount ?? u.following_count ?? 0),
+    posts: Number(u.postCount ?? u.post_count ?? 0),
+    earnings: Number(u.earnings ?? 0),
+    tokenSymbol: String(u.tokenSymbol ?? u.token_symbol ?? "TOKEN"),
+    tokenPrice: Number(u.tokenPrice ?? u.token_price ?? 0),
+    tokenChange: Number(u.tokenChange ?? u.token_change ?? 0),
+    coverGradient: String(u.coverGradient ?? u.cover_gradient ?? "from-violet-900 via-purple-800 to-indigo-900"),
+    walletAddress: String(u.walletAddress ?? u.wallet_address ?? ""),
+    tags: Array.isArray(u.tags) ? u.tags : [],
+    earlyBelieverThreshold: 100,
+    foundingSubscriberSlots: 50,
+    foundingSubscriberPrice: 5,
+    reputationScore: Number(u.reputationScore ?? u.reputation_score ?? 50),
+    predictionAccuracy: Number(u.predictionAccuracy ?? u.prediction_accuracy ?? 50),
+    expertVerified: Boolean(u.expertVerified ?? u.expert_verified),
+    expertCredential: u.expertCredential ? String(u.expertCredential) : undefined,
+  };
+}
+
 export default function ExplorePage() {
+  const { user } = useAuth();
   const [query, setQuery] = useState("");
+  const [creators, setCreators] = useState<Creator[]>(MOCK_CREATORS);
   const [followedIds, setFollowedIds] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await fetch("/api/users");
+        if (!res.ok) return;
+        const data = await res.json();
+        const real: Creator[] = (data.users ?? []).map(dbUserToCreator);
+        if (real.length > 0) setCreators(real);
+      } catch {
+        // keep mock creators as fallback
+      }
+    };
+    fetchUsers();
+  }, []);
+
   const filtered = query
-    ? MOCK_CREATORS.filter(
+    ? creators.filter(
         (c) =>
           c.displayName.toLowerCase().includes(query.toLowerCase()) ||
           c.username.toLowerCase().includes(query.toLowerCase()) ||
           c.tags.some((t) => t.toLowerCase().includes(query.toLowerCase()))
       )
-    : MOCK_CREATORS;
+    : creators;
 
-  const handleFollow = (creator: typeof MOCK_CREATORS[0]) => {
+  const handleFollow = async (creator: Creator) => {
+    if (!user) { toast("warning", "Sign in to follow"); return; }
+    const isFollowing = followedIds.has(creator.id);
     setFollowedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(creator.id)) {
-        next.delete(creator.id);
-      } else {
+      if (isFollowing) { next.delete(creator.id); } else {
         next.add(creator.id);
         toast("success", `Following ${creator.displayName}`);
       }
       return next;
     });
+    try {
+      await fetch("/api/follows", {
+        method: isFollowing ? "DELETE" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ followerId: user.id, followingId: creator.id }),
+      });
+    } catch {
+      // revert on error
+      setFollowedIds((prev) => {
+        const next = new Set(prev);
+        if (isFollowing) { next.add(creator.id); } else { next.delete(creator.id); }
+        return next;
+      });
+    }
   };
 
   return (
@@ -94,7 +154,7 @@ export default function ExplorePage() {
               <Zap size={14} className="text-accent-amber fill-accent-amber" /> Top creators this week
             </h2>
             <div className="space-y-2">
-              {[...MOCK_CREATORS].sort((a, b) => b.earnings - a.earnings).slice(0, 3).map((creator, i) => (
+              {[...creators].sort((a, b) => b.earnings - a.earnings).slice(0, 3).map((creator, i) => (
                 <motion.div
                   key={creator.id}
                   initial={{ opacity: 0, x: -8 }}
