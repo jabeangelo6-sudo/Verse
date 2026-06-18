@@ -65,6 +65,12 @@ export function FeedPost({ post }: { post: Post }) {
     setShowShare(false);
   };
 
+  const handleCastFarcaster = () => {
+    const castText = `"${post.content.slice(0, 200)}"\n\n— @${post.creator.username} on Verse`;
+    window.open(`https://warpcast.com/~/compose?text=${encodeURIComponent(castText)}&embeds[]=${encodeURIComponent(postUrl)}`, "_blank");
+    setShowShare(false);
+  };
+
   return (
     <motion.article initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="card p-4 group">
 
@@ -208,6 +214,9 @@ export function FeedPost({ post }: { post: Post }) {
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   className="absolute bottom-10 left-0 glass border border-border rounded-2xl p-3 shadow-card-hover z-10 min-w-[180px] space-y-1"
                 >
+                  <button onClick={handleCastFarcaster} className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-white/[0.06] text-xs text-text-secondary hover:text-text-primary transition-colors">
+                    <span className="w-3 h-3 rounded-sm bg-violet-500 flex-shrink-0" /> Cast on Farcaster
+                  </button>
                   <button onClick={handleShareTwitter} className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-white/[0.06] text-xs text-text-secondary hover:text-text-primary transition-colors">
                     <ExternalLink size={13} className="text-sky-400" /> Post on X / Twitter
                   </button>
