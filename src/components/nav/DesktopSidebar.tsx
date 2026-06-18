@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Compass, PlusSquare, Bell, Wallet, Settings, Zap, LogOut, Trophy, FileText, Brain, Shield, BarChart3 } from "lucide-react";
+import { Home, Compass, PlusSquare, Bell, DollarSign, Settings, Zap, LogOut, Trophy, FileText, Brain, Shield, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/ui/Avatar";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -13,7 +13,7 @@ const MAIN_NAV = [
   { href: "/explore", icon: Compass, label: "Explore" },
   { href: "/create", icon: PlusSquare, label: "Create" },
   { href: "/notifications", icon: Bell, label: "Notifications", badge: 3 },
-  { href: "/wallet", icon: Wallet, label: "Wallet" },
+  { href: "/wallet", icon: DollarSign, label: "Earnings" },
 ];
 
 const EARN_NAV = [
