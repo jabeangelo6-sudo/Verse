@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { db, users } from "@/lib/db";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 export async function POST(req: NextRequest) {
   try {
@@ -47,9 +47,14 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
-  if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
-  const [user] = await db.select().from(users).where(eq(users.id, id)).limit(1);
-  if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  return NextResponse.json({ user });
+  if (id) {
+    const [user] = await db.select().from(users).where(eq(users.id, id)).limit(1);
+    if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return NextResponse.json({ user });
+  }
+
+  // List all users sorted by follower count (for Explore page)
+  const allUsers = await db.select().from(users).orderBy(desc(users.followerCount)).limit(50);
+  return NextResponse.json({ users: allUsers });
 }
