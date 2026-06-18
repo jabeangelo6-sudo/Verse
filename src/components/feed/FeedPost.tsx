@@ -3,7 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, MessageCircle, Repeat2, Zap, MoreHorizontal, Lock, BadgeCheck, TrendingUp, Users2, Share2, Twitter, Copy, Check } from "lucide-react";
+import { Heart, MessageCircle, Repeat2, Zap, MoreHorizontal, Lock, BadgeCheck, TrendingUp, Users2, Share2, Copy, Check, ExternalLink } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -209,7 +209,7 @@ export function FeedPost({ post }: { post: Post }) {
                   className="absolute bottom-10 left-0 glass border border-border rounded-2xl p-3 shadow-card-hover z-10 min-w-[180px] space-y-1"
                 >
                   <button onClick={handleShareTwitter} className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-white/[0.06] text-xs text-text-secondary hover:text-text-primary transition-colors">
-                    <Twitter size={13} className="text-sky-400" /> Post on X / Twitter
+                    <ExternalLink size={13} className="text-sky-400" /> Post on X / Twitter
                   </button>
                   <button onClick={handleShareWhatsApp} className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-white/[0.06] text-xs text-text-secondary hover:text-text-primary transition-colors">
                     <MessageCircle size={13} className="text-accent-green" /> Share on WhatsApp
