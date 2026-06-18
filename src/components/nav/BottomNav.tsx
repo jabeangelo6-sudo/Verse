@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Compass, PlusSquare, Bell, Wallet } from "lucide-react";
+import { Home, Compass, PlusSquare, Bell, DollarSign } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
@@ -10,7 +10,7 @@ const NAV_ITEMS = [
   { href: "/explore", icon: Compass, label: "Explore" },
   { href: "/create", icon: PlusSquare, label: "Create" },
   { href: "/notifications", icon: Bell, label: "Alerts" },
-  { href: "/wallet", icon: Wallet, label: "Wallet" },
+  { href: "/wallet", icon: DollarSign, label: "Earnings" },
 ];
 
 export function BottomNav() {
