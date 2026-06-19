@@ -204,7 +204,8 @@ export function FeedPost({ post }: { post: Post }) {
             <span>{formatCount(likeCount)}</span>
           </motion.button>
 
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-text-muted hover:text-accent-cyan hover:bg-accent-cyan/8 transition-all">
+          <button onClick={() => toast("info", "Comments", "Coming soon — drop a tip to react for now")}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-text-muted hover:text-accent-cyan hover:bg-accent-cyan/8 transition-all">
             <MessageCircle size={15} />
             <span>{formatCount(post.comments)}</span>
           </button>
