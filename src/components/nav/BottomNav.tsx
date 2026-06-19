@@ -26,7 +26,7 @@ export function BottomNav() {
     const file = e.target.files?.[0];
     if (!file) return;
     const url = URL.createObjectURL(file);
-    mediaStore.set({ url, type, name: file.name });
+    mediaStore.set({ url, type, name: file.name, file });
     setShowSheet(false);
     router.push("/create");
   };
