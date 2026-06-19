@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Lock, Globe, Sparkles, Loader2, Send, Zap, Target, Link2, X, ImageIcon, Video } from "lucide-react";
 import { mediaStore } from "@/lib/media-store";
+import { uploadMedia } from "@/lib/upload";
 import { Button } from "@/components/ui/Button";
 import { Avatar } from "@/components/ui/Avatar";
 import { useToast } from "@/components/ui/Toast";
@@ -33,7 +34,8 @@ const AI_ACTIONS: { id: AIAction; label: string }[] = [
 export default function CreatePage() {
   const { user, authenticated } = useAuth();
   const { isConnected } = useIntegrations();
-  const [pendingMedia, setPendingMedia] = useState<{ url: string; type: "image" | "video"; name: string } | null>(null);
+  const [pendingMedia, setPendingMedia] = useState<{ url: string; type: "image" | "video"; name: string; file?: File } | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     const m = mediaStore.get();
@@ -88,13 +90,27 @@ export default function CreatePage() {
 
     setPublishing(true);
     try {
+      // Upload media if present
+      let mediaUrl: string | undefined;
+      if (pendingMedia?.file) {
+        setUploading(true);
+        try {
+          mediaUrl = await uploadMedia(pendingMedia.file);
+        } catch {
+          toast("warning", "Media upload failed — posting without it");
+        } finally {
+          setUploading(false);
+        }
+      }
+
       const res = await fetch("/api/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           creatorId: user.id,
           content,
-          type: "text",
+          type: pendingMedia ? pendingMedia.type : "text",
+          media: mediaUrl,
           isExclusive: visibility === "exclusive",
           tags: [],
         }),
