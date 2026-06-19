@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-import { db, follows, users } from "@/lib/db";
+import { db, follows, users, notifications } from "@/lib/db";
 import { and, eq, sql } from "drizzle-orm";
 
 export async function POST(req: NextRequest) {
@@ -25,6 +25,15 @@ export async function POST(req: NextRequest) {
   await db.insert(follows).values({ followerId, followingId });
   await db.update(users).set({ followingCount: sql`${users.followingCount} + 1` }).where(eq(users.id, followerId));
   await db.update(users).set({ followerCount: sql`${users.followerCount} + 1` }).where(eq(users.id, followingId));
+
+  // Notify the followed user
+  await db.insert(notifications).values({
+    recipientId: followingId,
+    actorId: followerId,
+    type: "follow",
+    content: "started following you",
+  }).onConflictDoNothing();
+
   return NextResponse.json({ following: true }, { status: 201 });
 }
 
