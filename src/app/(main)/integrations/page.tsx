@@ -1,11 +1,8 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Twitter, Linkedin, Send, MessageSquare, Rss, Zap, CreditCard,
-  Mail, BookOpen, Heart, Link2, Check, Copy, X, RefreshCw,
-  Upload, Globe, ChevronRight, Sparkles, DollarSign
-} from "lucide-react";
+import { Link2, Check, Copy, X, Upload, Globe, Zap, Rss, CreditCard, DollarSign, Sparkles, Mail, BookOpen, Heart, RefreshCw, MessageSquare } from "lucide-react";
+import { SiX, SiLinkedin, SiTelegram, SiInstagram, SiMedium, SiPatreon, SiZapier, SiDiscord, SiStripe, SiPaypal } from "react-icons/si";
 import { TopBar } from "@/components/nav/TopBar";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
@@ -35,7 +32,7 @@ const INTEGRATIONS: IntegrationDef[] = [
     id: "twitter", name: "X / Twitter", type: "distribute",
     tagline: "Auto cross-post when you publish",
     description: "Every Verse post you publish gets shared to your X account automatically.",
-    icon: <span className="font-black text-white text-base leading-none">𝕏</span>,
+    icon: <SiX size={15} className="text-white" />,
     color: "bg-black",
     inputLabel: "Your X username", inputPlaceholder: "@yourhandle",
     connectedLabel: "Posting to",
@@ -44,7 +41,7 @@ const INTEGRATIONS: IntegrationDef[] = [
     id: "linkedin", name: "LinkedIn", type: "distribute",
     tagline: "Reach your professional audience",
     description: "Share posts to your LinkedIn feed. Great for thought leadership content.",
-    icon: <Linkedin size={16} className="text-white fill-white" />,
+    icon: <SiLinkedin size={15} className="text-white" />,
     color: "bg-[#0077B5]",
     inputLabel: "LinkedIn profile name", inputPlaceholder: "Your Name",
     connectedLabel: "Posting as",
@@ -53,16 +50,16 @@ const INTEGRATIONS: IntegrationDef[] = [
     id: "farcaster", name: "Farcaster", type: "distribute",
     tagline: "Cast to Warpcast on publish",
     description: "Cross-post to Farcaster automatically. Reach the crypto-native creator community.",
-    icon: <span className="font-black text-white text-sm">⌀</span>,
+    icon: <span className="font-black text-white text-sm leading-none">⌀</span>,
     color: "bg-[#8B5CF6]",
-    inputLabel: "Farcaster username", inputPlaceholder: "@yourname.eth",
+    inputLabel: "Farcaster username", inputPlaceholder: "@yourname",
     connectedLabel: "Casting as",
   },
   {
     id: "telegram", name: "Telegram", type: "distribute",
     tagline: "Notify your Telegram channel",
     description: "Send a message to your Telegram channel whenever you post something new.",
-    icon: <Send size={15} className="text-white" />,
+    icon: <SiTelegram size={15} className="text-white" />,
     color: "bg-[#229ED9]",
     inputLabel: "Channel username", inputPlaceholder: "@yourchannel",
     connectedLabel: "Sending to",
@@ -71,7 +68,7 @@ const INTEGRATIONS: IntegrationDef[] = [
     id: "instagram", name: "Instagram", type: "distribute",
     tagline: "Copy caption on publish, paste into Instagram",
     description: "When you publish, your post text is copied to clipboard automatically. Open Instagram and paste it as your caption.",
-    icon: <Globe size={15} className="text-white" />,
+    icon: <SiInstagram size={15} className="text-white" />,
     color: "bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#F77737]",
     inputLabel: "Your Instagram username", inputPlaceholder: "@yourhandle",
     connectedLabel: "Copying caption for",
@@ -91,7 +88,7 @@ const INTEGRATIONS: IntegrationDef[] = [
     id: "medium", name: "Medium", type: "import",
     tagline: "Import all your articles",
     description: "Pull all your Medium posts into Verse as long-form content. Keep your drafts, published posts, and claps data.",
-    icon: <BookOpen size={15} className="text-white" />,
+    icon: <SiMedium size={15} className="text-white" />,
     color: "bg-black",
     inputLabel: "Medium username", inputPlaceholder: "@yourhandle",
     connectedLabel: "Imported from",
@@ -100,7 +97,7 @@ const INTEGRATIONS: IntegrationDef[] = [
     id: "twitter_import", name: "Import from X", type: "import",
     tagline: "Bring your threads and tweets",
     description: "Import your best threads and tweets as Verse posts. Your existing audience can follow your new profile.",
-    icon: <span className="font-black text-white text-base leading-none">𝕏</span>,
+    icon: <SiX size={15} className="text-white" />,
     color: "bg-black",
     inputLabel: "Your X username", inputPlaceholder: "@yourhandle",
     connectedLabel: "Importing from",
@@ -118,7 +115,7 @@ const INTEGRATIONS: IntegrationDef[] = [
     id: "patreon", name: "Patreon", type: "import",
     tagline: "Migrate members to Inner Circle",
     description: "Move your Patreon patrons to Verse's Inner Circle. They keep their access, you keep more of your earnings.",
-    icon: <Heart size={15} className="text-white" />,
+    icon: <SiPatreon size={15} className="text-white" />,
     color: "bg-[#FF424D]",
     inputLabel: "Patreon creator URL", inputPlaceholder: "patreon.com/yourname",
     connectedLabel: "Migrating from",
@@ -129,7 +126,7 @@ const INTEGRATIONS: IntegrationDef[] = [
     id: "zapier", name: "Zapier", type: "automate",
     tagline: "Connect Verse to 6,000+ apps",
     description: "Use your Verse webhook to trigger anything: send thank-you emails on new tips, add new followers to your CRM, post to Slack on new members.",
-    icon: <Zap size={15} className="text-white fill-white" />,
+    icon: <SiZapier size={15} className="text-white" />,
     color: "bg-[#FF4A00]",
     urlOutput: true,
     connectedLabel: "Webhook active",
@@ -138,7 +135,7 @@ const INTEGRATIONS: IntegrationDef[] = [
     id: "discord", name: "Discord", type: "automate",
     tagline: "Post to your server when you publish",
     description: "Paste your Discord webhook URL and every new Verse post fires into your server automatically.",
-    icon: <MessageSquare size={15} className="text-white" />,
+    icon: <SiDiscord size={15} className="text-white" />,
     color: "bg-[#5865F2]",
     inputLabel: "Discord webhook URL", inputPlaceholder: "https://discord.com/api/webhooks/...",
     connectedLabel: "Posting to server",
@@ -168,7 +165,7 @@ const INTEGRATIONS: IntegrationDef[] = [
     id: "stripe", name: "Stripe", type: "payout",
     tagline: "Bank transfers in 2–3 business days",
     description: "Connect your Stripe account to receive earnings via bank transfer. Supports 40+ countries.",
-    icon: <CreditCard size={15} className="text-white" />,
+    icon: <SiStripe size={15} className="text-white" />,
     color: "bg-[#635BFF]",
     connectedLabel: "Connected",
   },
@@ -176,7 +173,7 @@ const INTEGRATIONS: IntegrationDef[] = [
     id: "paypal", name: "PayPal", type: "payout",
     tagline: "Same-day transfers to PayPal",
     description: "Link your PayPal account for instant same-day withdrawals to your PayPal balance.",
-    icon: <DollarSign size={15} className="text-white" />,
+    icon: <SiPaypal size={15} className="text-white" />,
     color: "bg-[#003087]",
     inputLabel: "PayPal email", inputPlaceholder: "you@email.com",
     connectedLabel: "Connected to",
