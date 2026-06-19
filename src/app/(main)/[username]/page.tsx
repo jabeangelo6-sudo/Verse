@@ -1,13 +1,12 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, BadgeCheck, TrendingUp, TrendingDown, Share2, MoreHorizontal, Grid3x3, FileText, Lock, Zap, Users, Link2, Target, Star } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Share2, MoreHorizontal, Grid3x3, FileText, Lock, Users, Link2, Target, Star, Zap, X, Copy, Check } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { FeedPost } from "@/components/feed/FeedPost";
 import { EarlyBelieverBadge } from "@/components/features/EarlyBelieverBadge";
-import { SubscriptionNFT } from "@/components/features/SubscriptionNFT";
 import { ExpertBadge } from "@/components/features/ExpertBadge";
 import { useToast } from "@/components/ui/Toast";
 import { MOCK_CREATORS, MOCK_POSTS } from "@/lib/mock-data";
@@ -15,7 +14,7 @@ import { formatCount, formatUSD } from "@/lib/utils";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-type ProfileTab = "posts" | "exclusive" | "collected";
+type ProfileTab = "posts" | "members" | "media";
 
 export default function CreatorProfilePage({ params }: { params: { username: string } }) {
   const creator = MOCK_CREATORS.find(c => c.username === params.username) ?? MOCK_CREATORS[0];
@@ -23,11 +22,12 @@ export default function CreatorProfilePage({ params }: { params: { username: str
   const [following, setFollowing] = useState(false);
   const [followerCount, setFollowerCount] = useState(creator.followers);
   const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
-  const [showBuyToken, setShowBuyToken] = useState(false);
-  const [tokenAmount, setTokenAmount] = useState(0);
+  const [showTip, setShowTip] = useState(false);
+  const [tipping, setTipping] = useState(false);
+  const [showShare, setShowShare] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
   const { toast } = useToast();
 
-  // Simulate: current user followed this creator early
   const userFollowedAt = Math.floor(creator.followers * 0.012);
   const isEarlyBeliever = userFollowedAt < creator.earlyBelieverThreshold;
 
@@ -37,15 +37,28 @@ export default function CreatorProfilePage({ params }: { params: { username: str
     if (!following) toast("success", `Following ${creator.displayName}`);
   };
 
-  const handleBuyToken = async () => {
-    if (tokenAmount <= 0) return;
-    await new Promise(r => setTimeout(r, 1500));
-    toast("success", `Bought ${tokenAmount} ${creator.tokenSymbol}`, formatUSD(tokenAmount * creator.tokenPrice));
-    setShowBuyToken(false);
-    setTokenAmount(0);
+  const handleTip = async (amount: number) => {
+    setTipping(true);
+    await new Promise(r => setTimeout(r, 1200));
+    setTipping(false);
+    setShowTip(false);
+    toast("tip", `Tipped ${creator.displayName}`, `$${amount}`);
   };
 
-  const priceUp = creator.tokenChange > 0;
+  const profileUrl = typeof window !== "undefined" ? `${window.location.origin}/${creator.username}` : "";
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(profileUrl);
+    setShareCopied(true);
+    setTimeout(() => setShareCopied(false), 2000);
+    toast("success", "Link copied");
+  };
+
+  const handleShareTwitter = () => {
+    const text = `Check out @${creator.username} on Verse — ${creator.bio.slice(0, 100)}`;
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(profileUrl)}`, "_blank");
+    setShowShare(false);
+  };
 
   return (
     <div className="flex flex-col min-h-screen pb-20 md:pb-0">
@@ -56,8 +69,29 @@ export default function CreatorProfilePage({ params }: { params: { username: str
         </Link>
         <span className="font-semibold text-text-primary">@{creator.username}</span>
         <div className="flex gap-1">
-          <button className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-white/[0.05] text-text-secondary"><Share2 size={18} /></button>
-          <button className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-white/[0.05] text-text-secondary"><MoreHorizontal size={18} /></button>
+          <div className="relative">
+            <button onClick={() => setShowShare(v => !v)} className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-white/[0.05] text-text-secondary">
+              <Share2 size={18} />
+            </button>
+            <AnimatePresence>
+              {showShare && (
+                <motion.div initial={{ opacity: 0, scale: 0.9, y: 8 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: 8 }}
+                  className="absolute top-11 right-0 glass border border-border rounded-2xl p-3 shadow-card-hover z-10 min-w-[180px] space-y-1">
+                  <button onClick={handleShareTwitter} className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-white/[0.06] text-xs text-text-secondary hover:text-text-primary transition-colors">
+                    <span className="font-black text-[11px]">𝕏</span> Share on X
+                  </button>
+                  <button onClick={handleCopyLink} className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-white/[0.06] text-xs text-text-secondary hover:text-text-primary transition-colors">
+                    {shareCopied ? <Check size={13} className="text-accent-green" /> : <Copy size={13} />}
+                    {shareCopied ? "Copied!" : "Copy link"}
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+          <button className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-white/[0.05] text-text-secondary">
+            <MoreHorizontal size={18} />
+          </button>
         </div>
       </header>
 
@@ -70,8 +104,33 @@ export default function CreatorProfilePage({ params }: { params: { username: str
         <div className="flex items-end justify-between mb-4">
           <Avatar src={creator.avatar} alt={creator.displayName} size="xl" ring={creator.verified} />
           <div className="flex gap-2 mb-1">
-            <Button variant="secondary" size="sm"><Link2 size={13} /> Tip</Button>
-            <Button variant={following ? "secondary" : "primary"} size="sm" onClick={handleFollow}>
+            {/* Tip button */}
+            <div className="relative">
+              <Button variant="secondary" size="sm" onClick={() => setShowTip(v => !v)} className="gap-1.5">
+                <Zap size={13} className="text-accent-amber fill-accent-amber" /> Tip
+              </Button>
+              <AnimatePresence>
+                {showTip && (
+                  <motion.div initial={{ opacity: 0, scale: 0.9, y: 8 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9, y: 8 }}
+                    className="absolute top-10 right-0 glass border border-border rounded-2xl p-3 shadow-card-hover z-10 min-w-[190px]">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-xs text-text-muted font-medium">Send a tip</p>
+                      <button onClick={() => setShowTip(false)}><X size={13} className="text-text-muted" /></button>
+                    </div>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {[1, 5, 10, 25, 50, 100].map(amt => (
+                        <button key={amt} onClick={() => handleTip(amt)} disabled={tipping}
+                          className="px-2 py-1.5 rounded-lg bg-accent-amber/10 hover:bg-accent-amber/20 text-accent-amber text-xs font-bold transition-colors border border-accent-amber/15 disabled:opacity-50">
+                          ${amt}
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+            <Button variant={following ? "secondary" : "primary"} size="sm" onClick={handleFollow} className="gap-1.5">
               <Users size={13} /> {following ? "Following" : "Follow"}
             </Button>
           </div>
@@ -87,22 +146,16 @@ export default function CreatorProfilePage({ params }: { params: { username: str
             </span>
           )}
         </div>
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-text-muted text-sm">@{creator.username}</span>
-          <span className="text-text-muted">·</span>
-          <span className="text-xs text-text-muted font-mono">{creator.walletAddress.slice(0, 6)}...{creator.walletAddress.slice(-4)}</span>
-        </div>
+        <div className="text-text-muted text-sm mb-3">@{creator.username}</div>
 
         <p className="text-text-secondary text-sm leading-relaxed mb-3">{creator.bio}</p>
 
-        {/* Expert credential */}
         {creator.expertVerified && creator.expertCredential && (
           <div className="mb-3">
             <ExpertBadge credential={creator.expertCredential} />
           </div>
         )}
 
-        {/* Tags */}
         <div className="flex flex-wrap gap-1.5 mb-4">
           {creator.tags.map(tag => <Badge key={tag} variant="ghost">{tag}</Badge>)}
         </div>
@@ -123,20 +176,17 @@ export default function CreatorProfilePage({ params }: { params: { username: str
               <span className="text-xs font-bold text-accent-amber">{creator.reputationScore}/100</span>
             </div>
             <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }} animate={{ width: `${creator.reputationScore}%` }}
+              <motion.div initial={{ width: 0 }} animate={{ width: `${creator.reputationScore}%` }}
                 transition={{ delay: 0.3, duration: 0.7, ease: "easeOut" }}
-                className="h-full bg-accent-amber rounded-full"
-              />
+                className="h-full bg-accent-amber rounded-full" />
             </div>
           </div>
           <div className="text-right flex-shrink-0">
-            <div className="text-xs text-text-muted">Prediction accuracy</div>
+            <div className="text-xs text-text-muted">Accuracy</div>
             <div className="text-sm font-bold text-accent-green">{creator.predictionAccuracy}%</div>
           </div>
         </div>
 
-        {/* Early Believer badge */}
         {isEarlyBeliever && (
           <div className="mb-4">
             <EarlyBelieverBadge
@@ -146,56 +196,6 @@ export default function CreatorProfilePage({ params }: { params: { username: str
             />
           </div>
         )}
-
-        {/* Creator token */}
-        <div className="card p-4 mb-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-                <Zap size={14} className="text-white fill-white" />
-              </div>
-              <div>
-                <div className="text-sm font-bold text-text-primary">{creator.tokenSymbol}</div>
-                <div className="text-xs text-text-muted">Creator token</div>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-sm font-bold text-text-primary">${creator.tokenPrice.toFixed(4)}</div>
-              <div className={cn("text-xs font-semibold flex items-center gap-0.5 justify-end", priceUp ? "text-accent-green" : "text-accent-rose")}>
-                {priceUp ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
-                {Math.abs(creator.tokenChange)}%
-              </div>
-            </div>
-          </div>
-          <Button variant="gradient" size="sm" fullWidth onClick={() => setShowBuyToken(v => !v)}>
-            <TrendingUp size={13} /> Buy {creator.tokenSymbol}
-          </Button>
-          <AnimatePresence>
-            {showBuyToken && (
-              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-                <div className="mt-3 pt-3 border-t border-border flex gap-2 items-center">
-                  <input type="number" min={1} placeholder="Amount" value={tokenAmount || ""} onChange={e => setTokenAmount(Number(e.target.value))} className="input-base h-9 text-sm" />
-                  <Button variant="primary" size="sm" onClick={handleBuyToken}>Buy</Button>
-                </div>
-                {tokenAmount > 0 && <p className="text-xs text-text-muted mt-1.5">≈ {formatUSD(tokenAmount * creator.tokenPrice)}</p>}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Subscription NFTs */}
-        <div className="mb-4">
-          <SubscriptionNFT creator={creator} />
-        </div>
-
-        {/* Portable audience */}
-        <div className="rounded-xl bg-accent-cyan/5 border border-accent-cyan/15 px-4 py-3 mb-4 flex items-center gap-3">
-          <Users size={16} className="text-accent-cyan flex-shrink-0" />
-          <p className="text-xs text-text-secondary">
-            <span className="text-accent-cyan font-semibold">{formatCount(followerCount)} followers</span> are stored on-chain —
-            {" "}{creator.displayName} owns their audience everywhere.
-          </p>
-        </div>
       </div>
 
       {/* Content tabs */}
@@ -203,14 +203,16 @@ export default function CreatorProfilePage({ params }: { params: { username: str
         <div className="flex gap-1">
           {([
             { id: "posts" as ProfileTab, label: "Posts", icon: <FileText size={13} /> },
-            { id: "exclusive" as ProfileTab, label: "Exclusive", icon: <Lock size={13} /> },
-            { id: "collected" as ProfileTab, label: "Collected", icon: <Grid3x3 size={13} /> },
+            { id: "members" as ProfileTab, label: "Members only", icon: <Lock size={13} /> },
+            { id: "media" as ProfileTab, label: "Media", icon: <Grid3x3 size={13} /> },
           ]).map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)}
               className={cn("flex items-center gap-1.5 px-3 py-3 text-sm font-medium transition-all relative",
                 activeTab === tab.id ? "text-text-primary" : "text-text-muted hover:text-text-secondary")}>
               {tab.icon} {tab.label}
-              {activeTab === tab.id && <motion.div layoutId="profile-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-primary rounded-full" />}
+              {activeTab === tab.id && (
+                <motion.div layoutId="profile-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-primary rounded-full" />
+              )}
             </button>
           ))}
         </div>
@@ -222,24 +224,28 @@ export default function CreatorProfilePage({ params }: { params: { username: str
             {activeTab === "posts" && (
               creatorPosts.length > 0
                 ? creatorPosts.map((p, i) => (
-                  <motion.div key={p.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="mb-3">
+                  <motion.div key={p.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.05 }} className="mb-3">
                     <FeedPost post={p} />
                   </motion.div>
                 ))
-                : <div className="text-center py-12 text-text-muted"><FileText size={32} className="mx-auto mb-3 opacity-30" /><p>No posts yet</p></div>
+                : <div className="text-center py-12 text-text-muted">
+                  <FileText size={32} className="mx-auto mb-3 opacity-30" />
+                  <p>No posts yet</p>
+                </div>
             )}
-            {activeTab === "exclusive" && (
+            {activeTab === "members" && (
               <div className="text-center py-12">
                 <Lock size={32} className="mx-auto mb-3 text-accent-amber opacity-50" />
-                <p className="text-text-secondary font-medium mb-1">Exclusive content</p>
-                <p className="text-sm text-text-muted">Hold {creator.tokenSymbol} tokens to unlock</p>
-                <Button variant="gradient" size="sm" className="mt-4">Buy {creator.tokenSymbol}</Button>
+                <p className="text-text-secondary font-medium mb-1">Members only content</p>
+                <p className="text-sm text-text-muted mb-4">Join {creator.displayName}'s Inner Circle to unlock</p>
+                <Button variant="gradient" size="sm">Become a member</Button>
               </div>
             )}
-            {activeTab === "collected" && (
+            {activeTab === "media" && (
               <div className="text-center py-12 text-text-muted">
                 <Grid3x3 size={32} className="mx-auto mb-3 opacity-30" />
-                <p>No NFTs collected yet</p>
+                <p>No media yet</p>
               </div>
             )}
           </motion.div>
