@@ -2,7 +2,7 @@
 import { Search, Zap } from "lucide-react";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
-import { ME } from "@/lib/mock-data";
+import { useAuth } from "@/lib/hooks/useAuth";
 import config from "@/lib/config";
 
 type TopBarProps = {
@@ -12,6 +12,10 @@ type TopBarProps = {
 };
 
 export function TopBar({ title, showSearch = false, showLogo = true }: TopBarProps) {
+  const { user } = useAuth();
+  const avatarSrc = user?.avatar ?? `https://api.dicebear.com/7.x/avataaars/svg?seed=default`;
+  const profileHref = user?.username ? `/${user.username}` : "/login";
+
   return (
     <header className="sticky top-0 z-30 glass-nav px-4 h-14 flex items-center justify-between md:hidden">
       {showLogo && !title ? (
@@ -31,8 +35,8 @@ export function TopBar({ title, showSearch = false, showLogo = true }: TopBarPro
             <Search size={17} />
           </button>
         )}
-        <Link href={`/${ME.username}`}>
-          <Avatar src={ME.avatar} alt={ME.displayName} size="sm" />
+        <Link href={profileHref}>
+          <Avatar src={avatarSrc} alt={user?.displayName ?? "Profile"} size="sm" />
         </Link>
       </div>
     </header>
