@@ -1,17 +1,25 @@
 "use client";
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Lock, Globe, Sparkles, Loader2, Send, Zap, Target } from "lucide-react";
+import { ArrowLeft, Lock, Globe, Sparkles, Loader2, Send, Zap, Target, Link2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Avatar } from "@/components/ui/Avatar";
 import { useToast } from "@/components/ui/Toast";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useIntegrations } from "@/lib/hooks/useIntegrations";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 type Visibility = "public" | "exclusive";
 type AIAction = "improve" | "expand" | "shorten" | "hooks";
+
+const CROSS_POST_PLATFORMS = [
+  { id: "twitter", label: "X", color: "bg-black border-zinc-700" },
+  { id: "linkedin", label: "LinkedIn", color: "bg-[#0077B5]/20 border-[#0077B5]/40" },
+  { id: "farcaster", label: "Farcaster", color: "bg-violet-500/20 border-violet-500/40" },
+  { id: "telegram", label: "Telegram", color: "bg-[#229ED9]/20 border-[#229ED9]/40" },
+];
 
 const AI_ACTIONS: { id: AIAction; label: string }[] = [
   { id: "improve", label: "Improve" },
@@ -22,13 +30,25 @@ const AI_ACTIONS: { id: AIAction; label: string }[] = [
 
 export default function CreatePage() {
   const { user, authenticated } = useAuth();
+  const { isConnected } = useIntegrations();
   const router = useRouter();
   const [content, setContent] = useState("");
   const [visibility, setVisibility] = useState<Visibility>("public");
   const [aiLoading, setAiLoading] = useState<AIAction | null>(null);
   const [publishing, setPublishing] = useState(false);
+  const [selectedPlatforms, setSelectedPlatforms] = useState<Set<string>>(new Set(["twitter", "farcaster"]));
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
+
+  const connectedPlatforms = CROSS_POST_PLATFORMS.filter(p => isConnected(p.id));
+
+  const togglePlatform = (id: string) => {
+    setSelectedPlatforms(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) { next.delete(id); } else { next.add(id); }
+      return next;
+    });
+  };
   const MAX_CHARS = 2000;
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -73,7 +93,16 @@ export default function CreatePage() {
       });
 
       if (res.ok) {
-        toast("success", "Post published to the decentralized web");
+        toast("success", "Post published");
+        // Cross-post to connected platforms
+        if (selectedPlatforms.has("twitter") && isConnected("twitter")) {
+          const tweetText = `${content.slice(0, 240)}\n\n— via Verse`;
+          window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`, "_blank");
+        }
+        if (selectedPlatforms.has("farcaster") && isConnected("farcaster")) {
+          const castText = content.slice(0, 280);
+          window.open(`https://warpcast.com/~/compose?text=${encodeURIComponent(castText)}`, "_blank");
+        }
         setContent("");
         router.push("/");
       } else {
@@ -175,6 +204,26 @@ export default function CreatePage() {
           </div>
 
           <div className="divider" />
+
+          {/* Cross-post bar */}
+          {connectedPlatforms.length > 0 ? (
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs text-text-muted">Also post to:</span>
+              {connectedPlatforms.map(p => (
+                <button key={p.id} onClick={() => togglePlatform(p.id)}
+                  className={cn("px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all",
+                    p.color,
+                    selectedPlatforms.has(p.id) ? "opacity-100 text-white" : "opacity-40 text-text-muted")}>
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <Link href="/integrations" className="flex items-center gap-1.5 text-xs text-text-muted hover:text-primary-light transition-colors">
+              <Link2 size={11} /> Connect platforms to cross-post
+            </Link>
+          )}
+
           <p className="text-xs text-text-muted flex items-center gap-1.5">
             <Globe size={11} className="text-accent-cyan" />
             Your content belongs to you — always.
