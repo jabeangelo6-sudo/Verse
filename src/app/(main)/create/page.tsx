@@ -23,6 +23,7 @@ const CROSS_POST_PLATFORMS = [
   { id: "telegram", label: "Telegram", color: "bg-[#229ED9]/20 border-[#229ED9]/40" },
   { id: "instagram", label: "Instagram", color: "bg-pink-600/20 border-pink-500/40" },
   { id: "tiktok", label: "TikTok", color: "bg-black border-zinc-700" },
+  { id: "kit", label: "Kit Email", color: "bg-[#FB6970]/20 border-[#FB6970]/40" },
 ];
 
 const AI_ACTIONS: { id: AIAction; label: string }[] = [
@@ -135,6 +136,9 @@ export default function CreatePage() {
         if (selectedPlatforms.has("tiktok") && isConnected("tiktok")) {
           await navigator.clipboard.writeText(content);
           toast("success", "Caption copied", "Open TikTok and paste to post");
+        }
+        if (selectedPlatforms.has("kit") && isConnected("kit")) {
+          toast("success", "Sending to Kit subscribers", "Your post will arrive in their inbox shortly");
         }
         setContent("");
         router.push("/");
