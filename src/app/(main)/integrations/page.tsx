@@ -69,12 +69,12 @@ const INTEGRATIONS: IntegrationDef[] = [
   },
   {
     id: "instagram", name: "Instagram", type: "distribute",
-    tagline: "Share as a story or post",
-    description: "Push your Verse content to Instagram automatically.",
+    tagline: "Copy caption on publish, paste into Instagram",
+    description: "When you publish, your post text is copied to clipboard automatically. Open Instagram and paste it as your caption.",
     icon: <Globe size={15} className="text-white" />,
     color: "bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#F77737]",
-    comingSoon: true,
-    inputLabel: "", inputPlaceholder: "",
+    inputLabel: "Your Instagram username", inputPlaceholder: "@yourhandle",
+    connectedLabel: "Copying caption for",
   },
 
   // IMPORT & MIGRATE
