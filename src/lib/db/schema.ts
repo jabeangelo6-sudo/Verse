@@ -93,12 +93,22 @@ export const notifications = pgTable("notifications", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const comments = pgTable("comments", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  postId: uuid("post_id").notNull().references(() => posts.id, { onDelete: "cascade" }),
+  creatorId: text("creator_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  content: text("content").notNull(),
+  likeCount: integer("like_count").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const collaborators = pgTable("collaborators", {
   postId: uuid("post_id").notNull().references(() => posts.id, { onDelete: "cascade" }),
   userId: text("user_id").notNull().references(() => users.id),
   splitPercent: integer("split_percent").notNull(),
 }, (t) => ({ pk: primaryKey({ columns: [t.postId, t.userId] }) }));
 
+export type Comment = typeof comments.$inferSelect;
 export type User = typeof users.$inferSelect;
 export type Post = typeof posts.$inferSelect;
 export type Follow = typeof follows.$inferSelect;
