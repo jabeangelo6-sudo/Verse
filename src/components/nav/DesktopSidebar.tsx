@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Compass, PlusSquare, Bell, DollarSign, Settings, Zap, LogOut, Crown, FileText, Brain, Shield, BarChart3 } from "lucide-react";
+import { Home, Compass, PlusSquare, Bell, DollarSign, Settings, Zap, LogOut, Crown, FileText, Brain, Shield, BarChart3, Link2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/ui/Avatar";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -112,6 +112,10 @@ export function DesktopSidebar() {
         <LogOut size={15} className="text-text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
       </div>
 
+      <Link href="/integrations" className="flex items-center gap-3 px-3 py-2 rounded-xl text-text-muted hover:text-text-secondary hover:bg-white/[0.04] transition-all text-sm">
+        <Link2 size={16} />
+        Integrations
+      </Link>
       <Link href="/settings" className="flex items-center gap-3 px-3 py-2 rounded-xl text-text-muted hover:text-text-secondary hover:bg-white/[0.04] transition-all text-sm">
         <Settings size={16} />
         Settings
