@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link2, Check, Copy, X, Upload, Globe, Zap, Rss, CreditCard, DollarSign, Sparkles, Mail, BookOpen, Heart, RefreshCw, MessageSquare } from "lucide-react";
-import { SiX, SiLinkedin, SiTelegram, SiInstagram, SiMedium, SiPatreon, SiZapier, SiDiscord, SiStripe, SiPaypal } from "react-icons/si";
+import { SiX, SiLinkedin, SiTelegram, SiInstagram, SiTiktok, SiMedium, SiPatreon, SiZapier, SiDiscord, SiStripe, SiPaypal } from "react-icons/si";
 import { TopBar } from "@/components/nav/TopBar";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
@@ -71,6 +71,15 @@ const INTEGRATIONS: IntegrationDef[] = [
     icon: <SiInstagram size={15} className="text-white" />,
     color: "bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#F77737]",
     inputLabel: "Your Instagram username", inputPlaceholder: "@yourhandle",
+    connectedLabel: "Copying caption for",
+  },
+  {
+    id: "tiktok", name: "TikTok", type: "distribute",
+    tagline: "Copy caption on publish, paste into TikTok",
+    description: "When you publish, your post text is copied to clipboard. Open TikTok, upload your video, and paste it as your caption.",
+    icon: <SiTiktok size={15} className="text-white" />,
+    color: "bg-black",
+    inputLabel: "Your TikTok username", inputPlaceholder: "@yourhandle",
     connectedLabel: "Copying caption for",
   },
 
