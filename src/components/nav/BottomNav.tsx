@@ -2,7 +2,7 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Compass, Bell, DollarSign, Plus, Camera, Video, PenLine } from "lucide-react";
+import { Home, Compass, Bell, TrendingUp, Plus, Camera, Video, PenLine } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { mediaStore } from "@/lib/media-store";
@@ -12,7 +12,7 @@ const NAV_ITEMS = [
   { href: "/explore", icon: Compass, label: "Explore" },
   null,
   { href: "/notifications", icon: Bell, label: "Alerts" },
-  { href: "/wallet", icon: DollarSign, label: "Earnings" },
+  { href: "/wallet", icon: TrendingUp, label: "Earnings" },
 ];
 
 export function BottomNav() {
