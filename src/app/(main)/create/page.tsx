@@ -22,6 +22,7 @@ const CROSS_POST_PLATFORMS = [
   { id: "farcaster", label: "Farcaster", color: "bg-violet-500/20 border-violet-500/40" },
   { id: "telegram", label: "Telegram", color: "bg-[#229ED9]/20 border-[#229ED9]/40" },
   { id: "instagram", label: "Instagram", color: "bg-pink-600/20 border-pink-500/40" },
+  { id: "tiktok", label: "TikTok", color: "bg-black border-zinc-700" },
 ];
 
 const AI_ACTIONS: { id: AIAction; label: string }[] = [
@@ -130,6 +131,10 @@ export default function CreatePage() {
         if (selectedPlatforms.has("instagram") && isConnected("instagram")) {
           await navigator.clipboard.writeText(content);
           toast("success", "Caption copied", "Open Instagram and paste to post");
+        }
+        if (selectedPlatforms.has("tiktok") && isConnected("tiktok")) {
+          await navigator.clipboard.writeText(content);
+          toast("success", "Caption copied", "Open TikTok and paste to post");
         }
         setContent("");
         router.push("/");
