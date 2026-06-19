@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link2, Check, Copy, X, Upload, Globe, Zap, Rss, CreditCard, DollarSign, Sparkles, Mail, BookOpen, Heart, RefreshCw, MessageSquare } from "lucide-react";
-import { SiX, SiLinkedin, SiTelegram, SiInstagram, SiTiktok, SiMedium, SiPatreon, SiZapier, SiDiscord, SiStripe, SiPaypal } from "react-icons/si";
+import { SiX, SiLinkedin, SiTelegram, SiInstagram, SiTiktok, SiMedium, SiPatreon, SiZapier, SiDiscord, SiStripe, SiPaypal, SiConvertkit } from "react-icons/si";
 import { TopBar } from "@/components/nav/TopBar";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
@@ -17,7 +17,7 @@ type IntegrationDef = {
   description: string;
   icon: React.ReactNode;
   color: string;
-  type: "distribute" | "import" | "automate" | "payout";
+  type: "distribute" | "import" | "automate" | "payout" | "email";
   inputLabel?: string;
   inputPlaceholder?: string;
   connectedLabel?: string;
@@ -169,6 +169,17 @@ const INTEGRATIONS: IntegrationDef[] = [
     connectedLabel: "Always active",
   },
 
+  // EMAIL
+  {
+    id: "kit", name: "Kit (ConvertKit)", type: "email",
+    tagline: "Send every post as a newsletter to your subscribers",
+    description: "Connect your Kit account and every Verse post you publish goes straight to your email subscribers as a broadcast. Your audience, owned by you.",
+    icon: <SiConvertkit size={15} className="text-white" />,
+    color: "bg-[#FB6970]",
+    inputLabel: "Kit API key", inputPlaceholder: "Paste your Kit API key",
+    connectedLabel: "Sending to subscribers",
+  },
+
   // PAYOUT
   {
     id: "stripe", name: "Stripe", type: "payout",
@@ -191,6 +202,7 @@ const INTEGRATIONS: IntegrationDef[] = [
 
 const CATEGORIES = [
   { id: "distribute", label: "Distribute", description: "Post once, appear everywhere", icon: <Globe size={14} /> },
+  { id: "email", label: "Email", description: "Own your audience with email", icon: <Mail size={14} /> },
   { id: "import", label: "Import & Migrate", description: "Bring your content and audience here", icon: <Upload size={14} /> },
   { id: "automate", label: "Automate", description: "Connect Verse to your workflow", icon: <Zap size={14} /> },
   { id: "payout", label: "Get Paid", description: "How you receive your earnings", icon: <DollarSign size={14} /> },
