@@ -19,6 +19,7 @@ const CROSS_POST_PLATFORMS = [
   { id: "linkedin", label: "LinkedIn", color: "bg-[#0077B5]/20 border-[#0077B5]/40" },
   { id: "farcaster", label: "Farcaster", color: "bg-violet-500/20 border-violet-500/40" },
   { id: "telegram", label: "Telegram", color: "bg-[#229ED9]/20 border-[#229ED9]/40" },
+  { id: "instagram", label: "Instagram", color: "bg-pink-600/20 border-pink-500/40" },
 ];
 
 const AI_ACTIONS: { id: AIAction; label: string }[] = [
@@ -102,6 +103,10 @@ export default function CreatePage() {
         if (selectedPlatforms.has("farcaster") && isConnected("farcaster")) {
           const castText = content.slice(0, 280);
           window.open(`https://warpcast.com/~/compose?text=${encodeURIComponent(castText)}`, "_blank");
+        }
+        if (selectedPlatforms.has("instagram") && isConnected("instagram")) {
+          await navigator.clipboard.writeText(content);
+          toast("success", "Caption copied", "Open Instagram and paste to post");
         }
         setContent("");
         router.push("/");
