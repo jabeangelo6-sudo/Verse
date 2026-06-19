@@ -1,4 +1,4 @@
-type PendingMedia = { url: string; type: "image" | "video"; name: string } | null;
+type PendingMedia = { url: string; type: "image" | "video"; name: string; file?: File } | null;
 
 let pending: PendingMedia = null;
 
