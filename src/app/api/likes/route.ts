@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
-import { db, likes, posts, users } from "@/lib/db";
+import { db, likes, posts, users, notifications } from "@/lib/db";
 import { eq, and, sql } from "drizzle-orm";
 
 export async function POST(req: NextRequest) {
@@ -15,6 +15,18 @@ export async function POST(req: NextRequest) {
     await db.update(posts)
       .set({ likeCount: sql`${posts.likeCount} + 1` })
       .where(eq(posts.id, postId));
+
+    // Notify the post creator (don't notify self-likes)
+    const post = await db.select({ creatorId: posts.creatorId }).from(posts).where(eq(posts.id, postId)).limit(1);
+    if (post.length > 0 && post[0].creatorId !== userId) {
+      await db.insert(notifications).values({
+        recipientId: post[0].creatorId,
+        actorId: userId,
+        type: "like",
+        postId,
+        content: "liked your post",
+      }).onConflictDoNothing();
+    }
 
     return NextResponse.json({ liked: true });
   } catch (err) {
