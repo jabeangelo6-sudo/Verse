@@ -12,6 +12,7 @@ import { VoicePlayer } from "@/components/features/VoicePlayer";
 import { ReputationStake } from "@/components/features/ReputationStake";
 import { ExpertBadge } from "@/components/features/ExpertBadge";
 import { useToast } from "@/components/ui/Toast";
+import { CommentSection } from "@/components/feed/CommentSection";
 import { type Post } from "@/lib/mock-data";
 import { formatCount, timeAgo } from "@/lib/utils";
 import { cn } from "@/lib/utils";
@@ -23,6 +24,7 @@ export function FeedPost({ post }: { post: Post }) {
   const [likeCount, setLikeCount] = useState(post.likes);
   const [reposted, setReposted] = useState(post.isReposted);
   const [repostCount, setRepostCount] = useState(post.reposts);
+  const [showComments, setShowComments] = useState(false);
   const [showTip, setShowTip] = useState(false);
   const [tipping, setTipping] = useState(false);
   const [showShare, setShowShare] = useState(false);
@@ -204,8 +206,9 @@ export function FeedPost({ post }: { post: Post }) {
             <span>{formatCount(likeCount)}</span>
           </motion.button>
 
-          <button onClick={() => toast("info", "Comments", "Coming soon — drop a tip to react for now")}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-text-muted hover:text-accent-cyan hover:bg-accent-cyan/8 transition-all">
+          <button onClick={() => setShowComments(v => !v)}
+            className={cn("flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all",
+              showComments ? "text-accent-cyan bg-accent-cyan/10" : "text-text-muted hover:text-accent-cyan hover:bg-accent-cyan/8")}>
             <MessageCircle size={15} />
             <span>{formatCount(post.comments)}</span>
           </button>
@@ -277,6 +280,10 @@ export function FeedPost({ post }: { post: Post }) {
           </AnimatePresence>
         </div>
       </div>
+      {/* Comments */}
+      <AnimatePresence>
+        {showComments && <CommentSection postId={post.id} />}
+      </AnimatePresence>
     </motion.article>
   );
 }
