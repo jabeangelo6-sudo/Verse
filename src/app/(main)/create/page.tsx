@@ -1,7 +1,8 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Lock, Globe, Sparkles, Loader2, Send, Zap, Target, Link2 } from "lucide-react";
+import { ArrowLeft, Lock, Globe, Sparkles, Loader2, Send, Zap, Target, Link2, X, ImageIcon, Video } from "lucide-react";
+import { mediaStore } from "@/lib/media-store";
 import { Button } from "@/components/ui/Button";
 import { Avatar } from "@/components/ui/Avatar";
 import { useToast } from "@/components/ui/Toast";
@@ -32,6 +33,12 @@ const AI_ACTIONS: { id: AIAction; label: string }[] = [
 export default function CreatePage() {
   const { user, authenticated } = useAuth();
   const { isConnected } = useIntegrations();
+  const [pendingMedia, setPendingMedia] = useState<{ url: string; type: "image" | "video"; name: string } | null>(null);
+
+  useEffect(() => {
+    const m = mediaStore.get();
+    if (m) { setPendingMedia(m); mediaStore.clear(); }
+  }, []);
   const router = useRouter();
   const [content, setContent] = useState("");
   const [visibility, setVisibility] = useState<Visibility>("public");
@@ -147,6 +154,26 @@ export default function CreatePage() {
         </div>
 
         <div className="flex-1 flex flex-col gap-4">
+          {/* Media preview */}
+          {pendingMedia && (
+            <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
+              className="relative rounded-2xl overflow-hidden border border-border bg-bg-elevated">
+              {pendingMedia.type === "image" ? (
+                <img src={pendingMedia.url} alt="Selected" className="w-full max-h-72 object-cover" />
+              ) : (
+                <video src={pendingMedia.url} controls className="w-full max-h-72" />
+              )}
+              <button onClick={() => setPendingMedia(null)}
+                className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 flex items-center justify-center text-white hover:bg-black/80 transition-colors">
+                <X size={14} />
+              </button>
+              <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-black/60 px-2 py-1 rounded-lg">
+                {pendingMedia.type === "image" ? <ImageIcon size={11} className="text-white" /> : <Video size={11} className="text-white" />}
+                <span className="text-[10px] text-white font-medium">{pendingMedia.type === "image" ? "Photo" : "Video"}</span>
+              </div>
+            </motion.div>
+          )}
+
           {/* Visibility */}
           <div className="flex gap-2">
             {(["public", "exclusive"] as Visibility[]).map(v => (
