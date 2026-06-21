@@ -112,7 +112,7 @@ export default function FeedPage() {
 
   return (
     <div className="flex flex-col min-h-screen pb-20 md:pb-0">
-      <TopBar showSearch />
+      <TopBar showSearch showSettings />
 
       {/* Stories / Who to follow */}
       <div className="px-4 pt-3 pb-2">
