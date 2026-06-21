@@ -8,6 +8,11 @@ const AppProviders = dynamic(
   { ssr: false, loading: () => null }
 );
 
+const LanguageDetector = dynamic(
+  () => import("@/components/providers/LanguageDetector").then(m => m.LanguageDetector),
+  { ssr: false, loading: () => null }
+);
+
 export const metadata: Metadata = {
   title: `${config.name} — ${config.tagline}`,
   description: config.description,
@@ -49,6 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="dark">
       <body className="antialiased">
+        <LanguageDetector />
         <AppProviders>{children}</AppProviders>
       </body>
     </html>
