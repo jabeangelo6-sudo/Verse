@@ -1,5 +1,5 @@
 "use client";
-import { Search, Zap } from "lucide-react";
+import { Search, Zap, Settings } from "lucide-react";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -9,9 +9,10 @@ type TopBarProps = {
   title?: string;
   showSearch?: boolean;
   showLogo?: boolean;
+  showSettings?: boolean;
 };
 
-export function TopBar({ title, showSearch = false, showLogo = true }: TopBarProps) {
+export function TopBar({ title, showSearch = false, showLogo = true, showSettings = false }: TopBarProps) {
   const { user } = useAuth();
   const avatarSrc = user?.avatar ?? `https://api.dicebear.com/7.x/avataaars/svg?seed=default`;
   const profileHref = user?.username ? `/${user.username}` : "/login";
@@ -29,11 +30,16 @@ export function TopBar({ title, showSearch = false, showLogo = true }: TopBarPro
         <h1 className="text-lg font-bold text-text-primary">{title}</h1>
       )}
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         {showSearch && (
-          <button className="w-9 h-9 rounded-xl bg-white/[0.05] flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors">
+          <Link href="/explore" className="w-9 h-9 rounded-xl bg-white/[0.05] flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors">
             <Search size={17} />
-          </button>
+          </Link>
+        )}
+        {showSettings && (
+          <Link href="/settings" className="w-9 h-9 rounded-xl bg-white/[0.05] flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors">
+            <Settings size={17} />
+          </Link>
         )}
         <Link href={profileHref}>
           <Avatar src={avatarSrc} alt={user?.displayName ?? "Profile"} size="sm" />
