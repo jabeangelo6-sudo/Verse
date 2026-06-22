@@ -9,10 +9,10 @@ const OnboardingCheck = dynamic(
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen bg-bg-base">
+    <div className="flex min-h-screen bg-bg-base overflow-x-hidden">
       <OnboardingCheck />
       <DesktopSidebar />
-      <main className="flex-1 min-h-screen max-w-2xl mx-auto w-full">
+      <main className="flex-1 min-h-screen max-w-2xl mx-auto w-full overflow-x-hidden">
         {children}
       </main>
       <div className="hidden xl:block w-80 shrink-0" />
