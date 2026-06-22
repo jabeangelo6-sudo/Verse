@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Lock, Globe, Sparkles, Loader2, Send, Zap, Target, Link2, X, ImageIcon, Video } from "lucide-react";
 import { mediaStore } from "@/lib/media-store";
 import { uploadMedia } from "@/lib/upload";
+import { buildShareText } from "@/lib/generate-cta";
 import { Button } from "@/components/ui/Button";
 import { Avatar } from "@/components/ui/Avatar";
 import { useToast } from "@/components/ui/Toast";
@@ -121,20 +122,22 @@ export default function CreatePage() {
       if (res.ok) {
         toast("success", "Post published");
         // Cross-post to connected platforms
+        const shareText = user?.username
+          ? buildShareText(content, user.username, user.bio ?? "", [])
+          : content;
+
         if (selectedPlatforms.has("twitter") && isConnected("twitter")) {
-          const tweetText = `${content.slice(0, 240)}\n\n— via Verse`;
-          window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`, "_blank");
+          window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText.slice(0, 280))}`, "_blank");
         }
         if (selectedPlatforms.has("farcaster") && isConnected("farcaster")) {
-          const castText = content.slice(0, 280);
-          window.open(`https://warpcast.com/~/compose?text=${encodeURIComponent(castText)}`, "_blank");
+          window.open(`https://warpcast.com/~/compose?text=${encodeURIComponent(shareText.slice(0, 320))}`, "_blank");
         }
         if (selectedPlatforms.has("instagram") && isConnected("instagram")) {
-          await navigator.clipboard.writeText(content);
+          await navigator.clipboard.writeText(shareText);
           toast("success", "Caption copied", "Open Instagram and paste to post");
         }
         if (selectedPlatforms.has("tiktok") && isConnected("tiktok")) {
-          await navigator.clipboard.writeText(content);
+          await navigator.clipboard.writeText(shareText);
           toast("success", "Caption copied", "Open TikTok and paste to post");
         }
         if (selectedPlatforms.has("kit") && isConnected("kit")) {
