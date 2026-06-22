@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Home, Compass, Bell, TrendingUp, Plus, Camera, Video, PenLine, Grid, Crown, FileText, Brain, Shield, BarChart3, Link2, Building2 } from "lucide-react";
@@ -28,23 +28,35 @@ const MORE_ITEMS = [
 
 function useSwipeDismiss(onDismiss: () => void) {
   const startY = useRef(0);
-  const [dragY, setDragY] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
 
   const onTouchStart = (e: React.TouchEvent) => {
     startY.current = e.touches[0].clientY;
-  };
-  const onTouchMove = (e: React.TouchEvent) => {
-    const dy = e.touches[0].clientY - startY.current;
-    if (dy > 0) setDragY(dy);
-  };
-  const onTouchEnd = () => {
-    if (dragY > 80) {
-      onDismiss();
-    }
-    setDragY(0);
+    if (ref.current) ref.current.style.transition = "none";
   };
 
-  return { dragY, onTouchStart, onTouchMove, onTouchEnd };
+  const onTouchMove = (e: React.TouchEvent) => {
+    const dy = e.touches[0].clientY - startY.current;
+    if (dy > 0 && ref.current) {
+      ref.current.style.transform = `translateY(${dy}px)`;
+    }
+  };
+
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const dy = e.changedTouches[0].clientY - startY.current;
+    if (!ref.current) return;
+    const ease = "transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)";
+    ref.current.style.transition = ease;
+    if (dy > 80) {
+      ref.current.style.transform = "translateY(100%)";
+      setTimeout(() => { onDismiss(); if (ref.current) ref.current.style.transform = ""; }, 340);
+    } else {
+      ref.current.style.transform = "translateY(0px)";
+      setTimeout(() => { if (ref.current) ref.current.style.transform = ""; }, 340);
+    }
+  };
+
+  return { ref, onTouchStart, onTouchMove, onTouchEnd };
 }
 
 export function BottomNav() {
@@ -56,7 +68,7 @@ export function BottomNav() {
   const videoRef = useRef<HTMLInputElement>(null);
 
   const sheetSwipe = useSwipeDismiss(() => setShowSheet(false));
-  const moreSwipe = useSwipeDismiss(() => setShowMore(false));
+  const moreSwipe  = useSwipeDismiss(() => setShowMore(false));
 
   const handleMedia = (e: React.ChangeEvent<HTMLInputElement>, type: "image" | "video") => {
     const file = e.target.files?.[0];
@@ -126,12 +138,13 @@ export function BottomNav() {
         )}
       </AnimatePresence>
 
-      {/* More sheet — CSS transition, native touch drag */}
+      {/* More sheet — CSS transition, direct DOM drag */}
       <div
+        ref={moreSwipe.ref}
         className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass border-t border-border rounded-t-3xl px-5 pt-4 pb-10"
         style={{
-          transform: showMore ? `translateY(${moreSwipe.dragY}px)` : "translateY(100%)",
-          transition: moreSwipe.dragY > 0 ? "none" : "transform 0.4s cubic-bezier(0.32, 0.72, 0, 1)",
+          transform: showMore ? "translateY(0)" : "translateY(100%)",
+          transition: "transform 0.4s cubic-bezier(0.32, 0.72, 0, 1)",
           pointerEvents: showMore ? "auto" : "none",
         }}>
         {/* Drag handle — full-width touch target */}
@@ -168,12 +181,13 @@ export function BottomNav() {
       <input ref={videoRef} type="file" accept="video/*" className="hidden"
         onChange={(e) => handleMedia(e, "video")} />
 
-      {/* Create sheet — CSS transition, native touch drag */}
+      {/* Create sheet — CSS transition, direct DOM drag */}
       <div
+        ref={sheetSwipe.ref}
         className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass border-t border-border rounded-t-3xl px-6 pt-4 pb-10"
         style={{
-          transform: showSheet ? `translateY(${sheetSwipe.dragY}px)` : "translateY(100%)",
-          transition: sheetSwipe.dragY > 0 ? "none" : "transform 0.4s cubic-bezier(0.32, 0.72, 0, 1)",
+          transform: showSheet ? "translateY(0)" : "translateY(100%)",
+          transition: "transform 0.4s cubic-bezier(0.32, 0.72, 0, 1)",
           pointerEvents: showSheet ? "auto" : "none",
         }}>
         {/* Drag handle */}
