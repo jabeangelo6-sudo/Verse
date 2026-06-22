@@ -26,20 +26,25 @@ type IntegrationDef = {
 };
 
 const CUSTOM_ICONS: Record<string, React.ReactNode> = {
-  farcaster: <span className="font-black text-white text-sm leading-none">f</span>,
-  beehiiv: <span className="text-white text-base leading-none">🐝</span>,
-  convertkit: <span className="font-black text-[#0f172a] text-xl leading-none">k</span>,
+  // Make.com: three parallel diagonal bars with pink→purple gradient
   make: (
-    <div className="flex gap-[3px] items-center">
-      {[0,1,2].map(i => <div key={i} className="w-[4px] h-[14px] bg-white rounded-full" style={{ transform: `rotate(${-20 + i * 20}deg)` }} />)}
+    <div className="flex items-center justify-center w-5 h-5 overflow-hidden">
+      <div className="flex gap-[3.5px]" style={{ transform: "rotate(-14deg) translateY(-1px)" }}>
+        {[
+          { from: "#FF44DD", to: "#CC44FF" },
+          { from: "#CC44FF", to: "#9933EE" },
+          { from: "#9933EE", to: "#5511CC" },
+        ].map((g, i) => (
+          <div key={i} style={{ width: 5, height: 22, borderRadius: 3, background: `linear-gradient(to bottom, ${g.from}, ${g.to})` }} />
+        ))}
+      </div>
     </div>
   ),
-  tiktok: <span className="text-white text-base leading-none">♪</span>,
 };
 
-function BrandIcon({ slug }: { slug: string }) {
+function BrandIcon({ slug, iconColor = "ffffff" }: { slug: string; iconColor?: string }) {
   if (CUSTOM_ICONS[slug]) return <>{CUSTOM_ICONS[slug]}</>;
-  return <img src={`https://cdn.simpleicons.org/${slug}/ffffff`} className="w-4 h-4" alt={slug} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />;
+  return <img src={`https://cdn.simpleicons.org/${slug}/${iconColor}`} className="w-5 h-5" alt={slug} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />;
 }
 
 const INTEGRATIONS: IntegrationDef[] = [
@@ -67,7 +72,7 @@ const INTEGRATIONS: IntegrationDef[] = [
     tagline: "Cast to Warpcast on publish",
     description: "Cross-post to Farcaster automatically. Reach the crypto-native creator community.",
     icon: <BrandIcon slug="farcaster" />,
-    color: "bg-[#8B5CF6]",
+    color: "bg-[#7C3AED]",
     inputLabel: "Farcaster username", inputPlaceholder: "@yourname",
     connectedLabel: "Casting as",
   },
@@ -190,8 +195,8 @@ const INTEGRATIONS: IntegrationDef[] = [
     id: "kit", name: "Kit (ConvertKit)", type: "email",
     tagline: "Send every post as a newsletter to your subscribers",
     description: "Connect your Kit account and every Verse post you publish goes straight to your email subscribers as a broadcast. Your audience, owned by you.",
-    icon: <BrandIcon slug="convertkit" />,
-    color: "bg-[#1D9BF0]",
+    icon: <BrandIcon slug="convertkit" iconColor="1a1a2e" />,
+    color: "bg-[#4BACDD]",
     inputLabel: "Kit API key", inputPlaceholder: "Paste your Kit API key",
     connectedLabel: "Sending to subscribers",
   },
