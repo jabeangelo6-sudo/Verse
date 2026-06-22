@@ -23,50 +23,50 @@ const CREATORS = [
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=alexrivera&backgroundColor=b6e3f4",
     niche: "Tech & Startups", monthlyEarnings: 3200, prevEarnings: 2800,
     followers: 48200, posts: 847, status: "active", joinedVia: "agency",
-    commissionThisMonth: 32,
+    commissionThisMonth: 48,
   },
   {
     id: "2", name: "Mia Chen", username: "mia_creates",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=miachen&backgroundColor=ffd5dc",
     niche: "Art & Design", monthlyEarnings: 8400, prevEarnings: 7100,
     followers: 92100, posts: 1204, status: "active", joinedVia: "agency",
-    commissionThisMonth: 84,
+    commissionThisMonth: 126,
   },
   {
     id: "3", name: "Jordan Brooks", username: "jordan_money",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=jordanbrooks&backgroundColor=c0aede",
     niche: "Personal Finance", monthlyEarnings: 1800, prevEarnings: 2100,
     followers: 31500, posts: 523, status: "active", joinedVia: "agency",
-    commissionThisMonth: 18,
+    commissionThisMonth: 27,
   },
   {
     id: "4", name: "Zara Williams", username: "zara_moves",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=zarawilliams&backgroundColor=d1f4e0",
     niche: "Fitness & Health", monthlyEarnings: 6200, prevEarnings: 5800,
     followers: 67800, posts: 932, status: "active", joinedVia: "agency",
-    commissionThisMonth: 62,
+    commissionThisMonth: 93,
   },
   {
     id: "5", name: "Marcus Johnson", username: "marcus_sounds",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=marcusjohnson&backgroundColor=ffeaa7",
     niche: "Music & Production", monthlyEarnings: 980, prevEarnings: 1200,
     followers: 24300, posts: 389, status: "active", joinedVia: "agency",
-    commissionThisMonth: 9.8,
+    commissionThisMonth: 14.70,
   },
 ];
 
 const MONTHLY_DATA = [
-  { month: "Feb", commission: 140 },
-  { month: "Mar", commission: 165 },
-  { month: "Apr", commission: 198 },
-  { month: "May", commission: 223 },
-  { month: "Jun", commission: 205.8 },
+  { month: "Feb", commission: 210 },
+  { month: "Mar", commission: 247.5 },
+  { month: "Apr", commission: 297 },
+  { month: "May", commission: 334.5 },
+  { month: "Jun", commission: 308.7 },
 ];
 
 const PAYOUTS = [
-  { date: "May 31, 2026", amount: 223.00, status: "paid", method: "PayPal" },
-  { date: "Apr 30, 2026", amount: 198.00, status: "paid", method: "PayPal" },
-  { date: "Mar 31, 2026", amount: 165.00, status: "paid", method: "PayPal" },
+  { date: "May 31, 2026", amount: 334.50, status: "paid", method: "PayPal" },
+  { date: "Apr 30, 2026", amount: 297.00, status: "paid", method: "PayPal" },
+  { date: "Mar 31, 2026", amount: 247.50, status: "paid", method: "PayPal" },
 ];
 
 function StatCard({ label, value, sub, icon, trend }: {
@@ -164,8 +164,8 @@ export default function AgencyDashboardPage() {
           <StatCard label="Creator earnings this month" value={`$${totalEarnings.toLocaleString()}`}
             sub="across all creators" icon={<TrendingUp size={18} className="text-primary-light" />} trend={trend} />
           <StatCard label="Your commission" value={`$${totalCommission.toFixed(2)}`}
-            sub="10% of Verse's fees" icon={<DollarSign size={18} className="text-accent-green" />} trend={commissionTrend} />
-          <StatCard label="Lifetime earned" value="$931.80"
+            sub="15% of Verse's fees" icon={<DollarSign size={18} className="text-accent-green" />} trend={commissionTrend} />
+          <StatCard label="Lifetime earned" value="$1,397.70"
             sub="since Jan 2026" icon={<BarChart2 size={18} className="text-accent-amber" />} />
         </div>
 
@@ -263,7 +263,7 @@ export default function AgencyDashboardPage() {
               </div>
               <div className="flex-1 text-center sm:text-left">
                 <div className="font-semibold text-text-secondary text-sm">Add more creators</div>
-                <div className="text-xs text-text-muted mt-0.5">Share your invite link or send a direct email invitation. Each new creator you bring earns you 10% commission forever.</div>
+                <div className="text-xs text-text-muted mt-0.5">Share your invite link or send a direct email invitation. Each new creator you bring earns you 15% commission forever.</div>
               </div>
               <button onClick={() => {
                 navigator.clipboard.writeText(`https://verse.app/join?agency=${AGENCY.referralCode}`);
