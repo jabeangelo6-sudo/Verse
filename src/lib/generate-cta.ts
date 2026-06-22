@@ -2,35 +2,35 @@ export function generateCTA(bio: string, tags: string[] = []): string {
   const text = [...tags.map(t => t.toLowerCase()), bio.toLowerCase()].join(" ");
 
   if (/tech|software|code|developer|engineer|programming/.test(text))
-    return "unfiltered tech takes before they hit mainstream";
+    return "unfiltered tech takes you won't find anywhere else";
   if (/financ|invest|money|trading|market|stock|crypto|defi/.test(text))
-    return "raw financial insights without the sponsored garbage";
+    return "raw financial insights, no sponsors, no fluff";
   if (/fitness|workout|gym|health|nutrition|training|athlete/.test(text))
-    return "real fitness science without the supplement ads";
+    return "real fitness content without the supplement ads";
   if (/music|artist|producer|beat|album|song|rapper|singer/.test(text))
     return "unreleased music and behind-the-scenes process";
   if (/business|entrepreneur|startup|founder|venture|ceo/.test(text))
-    return "the business strategies I can't post anywhere else";
+    return "business strategies I only share here";
   if (/gaming|gamer|stream|esport|game/.test(text))
-    return "game analysis without the corporate sponsorship";
+    return "honest game content, no brand deals";
   if (/food|cook|recipe|chef|bake|kitchen|restaurant/.test(text))
-    return "recipes and food stories before they go mainstream";
+    return "recipes and food stories I only post here";
   if (/travel|adventure|explore|digital nomad|backpack/.test(text))
-    return "travel discoveries before the crowds find them";
+    return "travel content without the tourist-trap filters";
   if (/art|design|creative|illustrat|paint|photograph/.test(text))
-    return "my creative process and work in progress";
+    return "my creative process, uncut";
   if (/write|author|writer|journalist|essay|book|newsletter/.test(text))
-    return "writing I only publish here, unedited and unfiltered";
+    return "writing I publish here first, unedited";
   if (/podcast|host|interview|episode|show/.test(text))
-    return "exclusive clips and conversations I don't post anywhere else";
+    return "exclusive clips I don't post anywhere else";
   if (/film|video|cinema|director|actor/.test(text))
-    return "behind-the-scenes content and early releases";
+    return "behind-the-scenes content you won't see on YouTube";
   if (/science|research|data|analyt|academic/.test(text))
-    return "research breakdowns before they're dumbed down";
+    return "research breakdowns without the jargon";
   if (/fashion|style|outfit|streetwear|luxury/.test(text))
-    return "style drops and fashion insights before anyone else";
+    return "style content I only drop here";
 
-  return "exclusive content I only share on Verse";
+  return "content I only share on Verse";
 }
 
 export function buildShareText(
