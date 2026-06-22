@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Home, Compass, Bell, TrendingUp, Plus, Camera, Video, PenLine, Grid, Crown, FileText, Brain, Shield, BarChart3, Link2, Building2 } from "lucide-react";
@@ -26,37 +26,51 @@ const MORE_ITEMS = [
   { href: "/agency", icon: Building2, label: "Agency", color: "text-accent-cyan", bg: "bg-accent-cyan/15 border-accent-cyan/20" },
 ];
 
+const EASE = "transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)";
+
 function useSwipeDismiss(onDismiss: () => void) {
   const startY = useRef(0);
-  const ref = useRef<HTMLDivElement>(null);
+  const dragging = useRef(false);
+  const sheetRef = useRef<HTMLDivElement>(null);
 
-  const onTouchStart = (e: React.TouchEvent) => {
-    startY.current = e.touches[0].clientY;
-    if (ref.current) ref.current.style.transition = "none";
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    startY.current = e.clientY;
+    dragging.current = true;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    if (sheetRef.current) sheetRef.current.style.transition = "none";
   };
 
-  const onTouchMove = (e: React.TouchEvent) => {
-    const dy = e.touches[0].clientY - startY.current;
-    if (dy > 0 && ref.current) {
-      ref.current.style.transform = `translateY(${dy}px)`;
-    }
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragging.current || !sheetRef.current) return;
+    const dy = e.clientY - startY.current;
+    if (dy > 0) sheetRef.current.style.transform = `translateY(${dy}px)`;
   };
 
-  const onTouchEnd = (e: React.TouchEvent) => {
-    const dy = e.changedTouches[0].clientY - startY.current;
-    if (!ref.current) return;
-    const ease = "transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)";
-    ref.current.style.transition = ease;
+  const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragging.current || !sheetRef.current) return;
+    dragging.current = false;
+    const dy = e.clientY - startY.current;
+    sheetRef.current.style.transition = EASE;
     if (dy > 80) {
-      ref.current.style.transform = "translateY(100%)";
-      setTimeout(() => { onDismiss(); if (ref.current) ref.current.style.transform = ""; }, 340);
+      sheetRef.current.style.transform = "translateY(100%)";
+      setTimeout(() => {
+        onDismiss();
+        if (sheetRef.current) sheetRef.current.style.transform = "";
+      }, 300);
     } else {
-      ref.current.style.transform = "translateY(0px)";
-      setTimeout(() => { if (ref.current) ref.current.style.transform = ""; }, 340);
+      sheetRef.current.style.transform = "translateY(0)";
+      setTimeout(() => { if (sheetRef.current) sheetRef.current.style.transform = ""; }, 300);
     }
   };
 
-  return { ref, onTouchStart, onTouchMove, onTouchEnd };
+  const handleProps = {
+    onPointerDown,
+    onPointerMove,
+    onPointerUp,
+    style: { touchAction: "none" } as React.CSSProperties,
+  };
+
+  return { sheetRef, handleProps };
 }
 
 export function BottomNav() {
@@ -83,7 +97,7 @@ export function BottomNav() {
     <>
       <nav className="fixed bottom-0 left-0 right-0 z-40 glass-nav safe-pb md:hidden">
         <div className="flex items-center justify-around px-2 pt-2 pb-1">
-          {NAV_ITEMS.map((item, i) => {
+          {NAV_ITEMS.map((item) => {
             if (!item) {
               return (
                 <button key="fab" onClick={() => { setShowSheet(true); setShowMore(false); }}
@@ -95,14 +109,13 @@ export function BottomNav() {
               );
             }
             if (item.href === null) {
-              const active = showMore;
               return (
                 <button key="more" onClick={() => { setShowMore(true); setShowSheet(false); }}
                   className="relative flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors">
-                  <span className={cn("transition-colors duration-200", active ? "text-primary-light" : "text-text-muted")}>
-                    <item.icon size={22} strokeWidth={active ? 2.5 : 1.8} />
+                  <span className={cn("transition-colors duration-200", showMore ? "text-primary-light" : "text-text-muted")}>
+                    <item.icon size={22} strokeWidth={showMore ? 2.5 : 1.8} />
                   </span>
-                  <span className={cn("text-[10px] font-medium transition-colors duration-200", active ? "text-primary-light" : "text-text-muted")}>
+                  <span className={cn("text-[10px] font-medium transition-colors duration-200", showMore ? "text-primary-light" : "text-text-muted")}>
                     {item.label}
                   </span>
                 </button>
@@ -129,7 +142,7 @@ export function BottomNav() {
         </div>
       </nav>
 
-      {/* Backdrop shared */}
+      {/* Shared backdrop */}
       <AnimatePresence>
         {(showMore || showSheet) && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -138,21 +151,18 @@ export function BottomNav() {
         )}
       </AnimatePresence>
 
-      {/* More sheet — CSS transition, direct DOM drag */}
+      {/* More sheet */}
       <div
-        ref={moreSwipe.ref}
-        className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass border-t border-border rounded-t-3xl px-5 pt-4 pb-10"
+        ref={moreSwipe.sheetRef}
+        className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass border-t border-border rounded-t-3xl px-5 pb-10"
         style={{
           transform: showMore ? "translateY(0)" : "translateY(100%)",
-          transition: "transform 0.4s cubic-bezier(0.32, 0.72, 0, 1)",
+          transition: EASE,
           pointerEvents: showMore ? "auto" : "none",
         }}>
-        {/* Drag handle — full-width touch target */}
-        <div className="flex justify-center pb-3 -mx-5 px-5 pt-1 cursor-grab active:cursor-grabbing"
-          onTouchStart={moreSwipe.onTouchStart}
-          onTouchMove={moreSwipe.onTouchMove}
-          onTouchEnd={moreSwipe.onTouchEnd}>
-          <div className="w-10 h-1 bg-white/20 rounded-full" />
+        {/* Handle — pointer events here, touchAction none prevents scroll conflict */}
+        <div className="flex justify-center pt-4 pb-4" {...moreSwipe.handleProps}>
+          <div className="w-10 h-1 bg-white/20 rounded-full pointer-events-none" />
         </div>
         <p className="text-xs font-bold text-text-muted uppercase tracking-widest text-center mb-5">Earn &amp; Build</p>
         <div className="grid grid-cols-4 gap-3 mb-5">
@@ -170,67 +180,43 @@ export function BottomNav() {
           })}
         </div>
         <button onClick={() => setShowMore(false)}
-          className="w-full py-3.5 rounded-2xl bg-white/[0.04] text-text-muted text-sm font-semibold">
+          className="w-full py-3.5 rounded-2xl bg-white/[0.04] text-text-muted text-sm font-semibold mb-2">
           Close
         </button>
       </div>
 
       {/* Hidden file inputs */}
-      <input ref={photoRef} type="file" accept="image/*" className="hidden"
-        onChange={(e) => handleMedia(e, "image")} />
-      <input ref={videoRef} type="file" accept="video/*" className="hidden"
-        onChange={(e) => handleMedia(e, "video")} />
+      <input ref={photoRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleMedia(e, "image")} />
+      <input ref={videoRef} type="file" accept="video/*" className="hidden" onChange={(e) => handleMedia(e, "video")} />
 
-      {/* Create sheet — CSS transition, direct DOM drag */}
+      {/* Create sheet */}
       <div
-        ref={sheetSwipe.ref}
-        className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass border-t border-border rounded-t-3xl px-6 pt-4 pb-10"
+        ref={sheetSwipe.sheetRef}
+        className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass border-t border-border rounded-t-3xl px-6 pb-10"
         style={{
           transform: showSheet ? "translateY(0)" : "translateY(100%)",
-          transition: "transform 0.4s cubic-bezier(0.32, 0.72, 0, 1)",
+          transition: EASE,
           pointerEvents: showSheet ? "auto" : "none",
         }}>
-        {/* Drag handle */}
-        <div className="flex justify-center pb-3 -mx-6 px-6 pt-1 cursor-grab active:cursor-grabbing"
-          onTouchStart={sheetSwipe.onTouchStart}
-          onTouchMove={sheetSwipe.onTouchMove}
-          onTouchEnd={sheetSwipe.onTouchEnd}>
-          <div className="w-10 h-1 bg-white/20 rounded-full" />
+        {/* Handle */}
+        <div className="flex justify-center pt-4 pb-4" {...sheetSwipe.handleProps}>
+          <div className="w-10 h-1 bg-white/20 rounded-full pointer-events-none" />
         </div>
         <p className="text-xs font-semibold text-text-muted uppercase tracking-widest text-center mb-6">Create</p>
         <div className="grid grid-cols-3 gap-5 mb-6">
           {[
-            {
-              icon: <PenLine size={26} className="text-primary-light" />,
-              label: "Write",
-              bg: "bg-primary/15 border border-primary/20",
-              action: () => { setShowSheet(false); router.push("/create"); }
-            },
-            {
-              icon: <Camera size={26} className="text-accent-amber" />,
-              label: "Photo",
-              bg: "bg-accent-amber/15 border border-accent-amber/20",
-              action: () => photoRef.current?.click()
-            },
-            {
-              icon: <Video size={26} className="text-accent-cyan" />,
-              label: "Video",
-              bg: "bg-accent-cyan/15 border border-accent-cyan/20",
-              action: () => videoRef.current?.click()
-            },
+            { icon: <PenLine size={26} className="text-primary-light" />, label: "Write", bg: "bg-primary/15 border border-primary/20", action: () => { setShowSheet(false); router.push("/create"); } },
+            { icon: <Camera size={26} className="text-accent-amber" />, label: "Photo", bg: "bg-accent-amber/15 border border-accent-amber/20", action: () => photoRef.current?.click() },
+            { icon: <Video size={26} className="text-accent-cyan" />, label: "Video", bg: "bg-accent-cyan/15 border border-accent-cyan/20", action: () => videoRef.current?.click() },
           ].map((opt) => (
-            <motion.button key={opt.label} whileTap={{ scale: 0.92 }}
-              onClick={opt.action}
-              className="flex flex-col items-center gap-3">
-              <div className={cn("w-[72px] h-[72px] rounded-2xl flex items-center justify-center", opt.bg)}>
-                {opt.icon}
-              </div>
+            <motion.button key={opt.label} whileTap={{ scale: 0.92 }} onClick={opt.action} className="flex flex-col items-center gap-3">
+              <div className={cn("w-[72px] h-[72px] rounded-2xl flex items-center justify-center", opt.bg)}>{opt.icon}</div>
               <span className="text-sm font-semibold text-text-secondary">{opt.label}</span>
             </motion.button>
           ))}
         </div>
         <button onClick={() => setShowSheet(false)}
-          className="w-full py-3.5 rounded-2xl bg-white/[0.04] text-text-muted text-sm font-semibold hover:bg-white/[0.07] transition-colors">
+          className="w-full py-3.5 rounded-2xl bg-white/[0.04] text-text-muted text-sm font-semibold hover:bg-white/[0.07] transition-colors mb-2">
           Cancel
         </button>
       </div>
