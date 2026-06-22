@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Home, Compass, Bell, TrendingUp, Plus, Camera, Video, PenLine, Grid, Crown, FileText, Brain, Shield, BarChart3, Link2, Building2 } from "lucide-react";
@@ -83,6 +83,12 @@ export function BottomNav() {
 
   const sheetSwipe = useSwipeDismiss(() => setShowSheet(false));
   const moreSwipe  = useSwipeDismiss(() => setShowMore(false));
+
+  // Lock body scroll while any sheet is open so the feed doesn't move behind it
+  useEffect(() => {
+    document.body.style.overflow = (showSheet || showMore) ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [showSheet, showMore]);
 
   const handleMedia = (e: React.ChangeEvent<HTMLInputElement>, type: "image" | "video") => {
     const file = e.target.files?.[0];
