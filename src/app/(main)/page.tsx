@@ -98,8 +98,9 @@ export default function FeedPage() {
         if (!res.ok) throw new Error("Feed fetch failed");
         const data = await res.json();
         const realPosts: Post[] = (data.posts ?? []).map(toPost);
-        // Use real posts if available, otherwise show mock data
-        setPosts(realPosts.length > 0 ? realPosts : MOCK_POSTS);
+        // Blend real posts with mock posts until platform has enough real content
+        const mockFill = MOCK_POSTS.filter(m => !realPosts.find(r => r.id === m.id));
+        setPosts(realPosts.length >= 10 ? realPosts : [...realPosts, ...mockFill].slice(0, 15));
       } catch {
         setError(true);
         setPosts(MOCK_POSTS);
