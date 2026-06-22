@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { User, Bell, Shield, DollarSign, LogOut, ChevronRight, Check, Trash2, Moon, Globe, Lock } from "lucide-react";
+import { User, Bell, Shield, DollarSign, LogOut, ChevronRight, Check, Trash2, Moon, Globe, Lock, Mail, Phone, Plus, X } from "lucide-react";
 import { TopBar } from "@/components/nav/TopBar";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
@@ -56,7 +56,14 @@ export default function SettingsPage() {
 
   const [displayName, setDisplayName] = useState(user?.displayName ?? "");
   const [bio, setBio] = useState(user?.bio ?? "");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [saving, setSaving] = useState(false);
+  const [savingInfo, setSavingInfo] = useState(false);
+
+  const [connectedAccounts, setConnectedAccounts] = useState([
+    { id: "privy", label: "Privy (primary)", icon: "🔐", connected: true, removable: false },
+  ]);
 
   const [notifs, setNotifs] = useState({
     newFollower: true,
@@ -79,6 +86,22 @@ export default function SettingsPage() {
     await new Promise(r => setTimeout(r, 1000));
     setSaving(false);
     toast("success", "Profile updated");
+  };
+
+  const handleSavePersonalInfo = async () => {
+    setSavingInfo(true);
+    await new Promise(r => setTimeout(r, 1000));
+    setSavingInfo(false);
+    toast("success", "Personal info saved");
+  };
+
+  const handleAddAccount = () => {
+    toast("info", "Choose a login method to add", "Email, Google, Apple, or Twitter");
+  };
+
+  const handleRemoveAccount = (id: string) => {
+    setConnectedAccounts(prev => prev.filter(a => a.id !== id));
+    toast("success", "Account removed");
   };
 
   const handleLogout = () => {
@@ -128,6 +151,59 @@ export default function SettingsPage() {
                 <Check size={13} /> Save changes
               </Button>
             </div>
+          </div>
+        </Section>
+
+        {/* Personal Info */}
+        <Section title="Personal Info">
+          <div className="px-4 py-4 space-y-3">
+            <div>
+              <label className="text-xs font-semibold text-text-secondary block mb-1.5">Email address</label>
+              <div className="relative">
+                <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+                  placeholder="your@email.com" className="input-base pl-9" />
+              </div>
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-text-secondary block mb-1.5">Phone number</label>
+              <div className="relative">
+                <Phone size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+                <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
+                  placeholder="+1 (555) 000-0000" className="input-base pl-9" />
+              </div>
+              <p className="text-xs text-text-muted mt-1.5">Used for account recovery only. Never shown publicly.</p>
+            </div>
+            <Button variant="primary" size="sm" loading={savingInfo} onClick={handleSavePersonalInfo} className="gap-1.5">
+              <Check size={13} /> Save
+            </Button>
+          </div>
+        </Section>
+
+        {/* Connected Accounts */}
+        <Section title="Connected Accounts">
+          <div className="px-4 py-3 space-y-2">
+            {connectedAccounts.map(account => (
+              <div key={account.id} className="flex items-center gap-3 py-2">
+                <div className="w-8 h-8 rounded-xl bg-white/[0.06] flex items-center justify-center text-base flex-shrink-0">
+                  {account.icon}
+                </div>
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-text-primary">{account.label}</div>
+                  <div className="text-xs text-accent-green">Connected</div>
+                </div>
+                {account.removable && (
+                  <button onClick={() => handleRemoveAccount(account.id)}
+                    className="w-7 h-7 rounded-lg bg-white/[0.04] flex items-center justify-center text-text-muted hover:text-accent-rose hover:bg-accent-rose/10 transition-colors">
+                    <X size={13} />
+                  </button>
+                )}
+              </div>
+            ))}
+            <button onClick={handleAddAccount}
+              className="w-full flex items-center gap-2 py-2.5 px-3 rounded-xl border border-dashed border-border hover:border-primary/40 hover:bg-primary/5 transition-all text-sm text-text-muted hover:text-primary-light">
+              <Plus size={15} /> Add account
+            </button>
           </div>
         </Section>
 
