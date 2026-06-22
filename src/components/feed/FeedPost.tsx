@@ -179,7 +179,7 @@ export function FeedPost({ post }: { post: Post }) {
       <div className="flex items-center gap-2 mb-3 flex-wrap">
         <HumanityBadge score={post.humanityScore} isVerified={post.isHumanVerified} />
         {post.hasVoice && post.voiceLanguages && (
-          <VoicePlayer languages={post.voiceLanguages} creatorName={post.creator.displayName} />
+          <VoicePlayer languages={post.voiceLanguages} creatorName={post.creator.displayName} content={post.content} />
         )}
       </div>
 
