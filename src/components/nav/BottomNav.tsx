@@ -2,7 +2,7 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Compass, Bell, TrendingUp, Plus, Camera, Video, PenLine } from "lucide-react";
+import { Home, Compass, Bell, TrendingUp, Plus, Camera, Video, PenLine, Grid, Crown, FileText, Brain, Shield, BarChart3, Settings, Link2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { mediaStore } from "@/lib/media-store";
@@ -12,13 +12,25 @@ const NAV_ITEMS = [
   { href: "/explore", icon: Compass, label: "Explore" },
   null,
   { href: "/notifications", icon: Bell, label: "Alerts" },
-  { href: "/wallet", icon: TrendingUp, label: "Earnings" },
+  { href: null, icon: Grid, label: "More" },
+];
+
+const MORE_ITEMS = [
+  { href: "/wallet", icon: TrendingUp, label: "Earnings", color: "text-accent-green", bg: "bg-accent-green/15 border-accent-green/20" },
+  { href: "/inner-circle", icon: Crown, label: "Inner Circle", color: "text-accent-amber", bg: "bg-accent-amber/15 border-accent-amber/20" },
+  { href: "/licensing", icon: FileText, label: "Licensing", color: "text-primary-light", bg: "bg-primary/15 border-primary/20" },
+  { href: "/brain-trust", icon: Brain, label: "Brain Trust", color: "text-accent-cyan", bg: "bg-accent-cyan/15 border-accent-cyan/20" },
+  { href: "/whistle", icon: Shield, label: "Verified Leaks", color: "text-accent-rose", bg: "bg-accent-rose/15 border-accent-rose/20" },
+  { href: "/derivatives", icon: BarChart3, label: "Content Futures", color: "text-accent-amber", bg: "bg-accent-amber/15 border-accent-amber/20" },
+  { href: "/integrations", icon: Link2, label: "Integrations", color: "text-text-secondary", bg: "bg-white/[0.06] border-white/[0.08]" },
+  { href: "/settings", icon: Settings, label: "Settings", color: "text-text-secondary", bg: "bg-white/[0.06] border-white/[0.08]" },
 ];
 
 export function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
   const [showSheet, setShowSheet] = useState(false);
+  const [showMore, setShowMore] = useState(false);
   const photoRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLInputElement>(null);
 
@@ -38,11 +50,25 @@ export function BottomNav() {
           {NAV_ITEMS.map((item, i) => {
             if (!item) {
               return (
-                <button key="fab" onClick={() => setShowSheet(true)}
+                <button key="fab" onClick={() => { setShowSheet(true); setShowMore(false); }}
                   className="relative -top-5 w-14 h-14 rounded-full bg-gradient-primary shadow-glow flex items-center justify-center flex-shrink-0 active:scale-95 transition-transform">
                   <motion.div animate={{ rotate: showSheet ? 45 : 0 }} transition={{ type: "spring", stiffness: 400, damping: 25 }}>
                     <Plus size={28} className="text-white" strokeWidth={2.5} />
                   </motion.div>
+                </button>
+              );
+            }
+            if (item.href === null) {
+              const active = showMore;
+              return (
+                <button key="more" onClick={() => { setShowMore(true); setShowSheet(false); }}
+                  className="relative flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors">
+                  <span className={cn("transition-colors duration-200", active ? "text-primary-light" : "text-text-muted")}>
+                    <item.icon size={22} strokeWidth={active ? 2.5 : 1.8} />
+                  </span>
+                  <span className={cn("text-[10px] font-medium transition-colors duration-200", active ? "text-primary-light" : "text-text-muted")}>
+                    {item.label}
+                  </span>
                 </button>
               );
             }
@@ -66,6 +92,42 @@ export function BottomNav() {
           })}
         </div>
       </nav>
+
+      {/* More sheet */}
+      <AnimatePresence>
+        {showMore && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 md:hidden"
+              onClick={() => setShowMore(false)} />
+            <motion.div
+              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+              transition={{ type: "spring", stiffness: 380, damping: 38 }}
+              className="fixed bottom-0 left-0 right-0 z-50 glass border-t border-border rounded-t-3xl px-5 pt-4 pb-10 md:hidden">
+              <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-5" />
+              <p className="text-xs font-bold text-text-muted uppercase tracking-widest text-center mb-5">Earn &amp; Build</p>
+              <div className="grid grid-cols-4 gap-3 mb-5">
+                {MORE_ITEMS.map((item) => {
+                  const active = pathname === item.href;
+                  return (
+                    <Link key={item.href} href={item.href} onClick={() => setShowMore(false)}
+                      className="flex flex-col items-center gap-2">
+                      <div className={cn("w-14 h-14 rounded-2xl border flex items-center justify-center transition-all", item.bg, active && "ring-2 ring-primary/40")}>
+                        <item.icon size={22} className={item.color} />
+                      </div>
+                      <span className="text-[10px] font-medium text-text-muted text-center leading-tight">{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+              <button onClick={() => setShowMore(false)}
+                className="w-full py-3.5 rounded-2xl bg-white/[0.04] text-text-muted text-sm font-semibold">
+                Close
+              </button>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Hidden file inputs */}
       <input ref={photoRef} type="file" accept="image/*" className="hidden"
