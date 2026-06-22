@@ -103,7 +103,9 @@ export function BottomNav() {
             <motion.div
               initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
               transition={{ type: "spring", stiffness: 380, damping: 38 }}
-              className="fixed bottom-0 left-0 right-0 z-50 glass border-t border-border rounded-t-3xl px-5 pt-4 pb-10 md:hidden">
+              drag="y" dragConstraints={{ top: 0 }} dragElastic={{ top: 0, bottom: 0.25 }}
+              onDragEnd={(_, info) => { if (info.offset.y > 80 || info.velocity.y > 400) setShowMore(false); }}
+              className="fixed bottom-0 left-0 right-0 z-50 glass border-t border-border rounded-t-3xl px-5 pt-4 pb-10 md:hidden cursor-grab active:cursor-grabbing">
               <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-5" />
               <p className="text-xs font-bold text-text-muted uppercase tracking-widest text-center mb-5">Earn &amp; Build</p>
               <div className="grid grid-cols-4 gap-3 mb-5">
@@ -145,7 +147,9 @@ export function BottomNav() {
             <motion.div
               initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
               transition={{ type: "spring", stiffness: 380, damping: 38 }}
-              className="fixed bottom-0 left-0 right-0 z-50 glass border-t border-border rounded-t-3xl px-6 pt-4 pb-10 md:hidden">
+              drag="y" dragConstraints={{ top: 0 }} dragElastic={{ top: 0, bottom: 0.25 }}
+              onDragEnd={(_, info) => { if (info.offset.y > 80 || info.velocity.y > 400) setShowSheet(false); }}
+              className="fixed bottom-0 left-0 right-0 z-50 glass border-t border-border rounded-t-3xl px-6 pt-4 pb-10 md:hidden cursor-grab active:cursor-grabbing">
               <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-7" />
               <p className="text-xs font-semibold text-text-muted uppercase tracking-widest text-center mb-6">Create</p>
               <div className="grid grid-cols-3 gap-5 mb-6">
