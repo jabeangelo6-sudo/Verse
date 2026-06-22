@@ -7,7 +7,7 @@
 @layer base {
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-  html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+  html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 
   body {
     background-color: #07070f;
@@ -15,6 +15,7 @@
     font-family: 'Inter', system-ui, sans-serif;
     min-height: 100dvh;
     overscroll-behavior: none;
+    overflow-x: hidden;
   }
 
   ::-webkit-scrollbar { width: 3px; height: 3px; }
