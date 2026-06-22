@@ -161,8 +161,8 @@ export function FeedPost({ post }: { post: Post }) {
 
       {/* Media */}
       {post.media && !post.isExclusive && (
-        <div className="relative rounded-2xl overflow-hidden mb-3 bg-bg-elevated aspect-[4/3]">
-          <Image src={post.media} alt="Post media" fill className="object-cover" />
+        <div className="rounded-2xl overflow-hidden mb-3 bg-bg-elevated">
+          <img src={post.media} alt="Post media" className="w-full object-cover max-h-[500px]" loading="lazy" />
         </div>
       )}
 
