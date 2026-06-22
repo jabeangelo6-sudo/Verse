@@ -26,6 +26,27 @@ const MORE_ITEMS = [
   { href: "/agency", icon: Building2, label: "Agency", color: "text-accent-cyan", bg: "bg-accent-cyan/15 border-accent-cyan/20" },
 ];
 
+function useSwipeDismiss(onDismiss: () => void) {
+  const startY = useRef(0);
+  const [dragY, setDragY] = useState(0);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    startY.current = e.touches[0].clientY;
+  };
+  const onTouchMove = (e: React.TouchEvent) => {
+    const dy = e.touches[0].clientY - startY.current;
+    if (dy > 0) setDragY(dy);
+  };
+  const onTouchEnd = () => {
+    if (dragY > 80) {
+      onDismiss();
+    }
+    setDragY(0);
+  };
+
+  return { dragY, onTouchStart, onTouchMove, onTouchEnd };
+}
+
 export function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
@@ -33,6 +54,9 @@ export function BottomNav() {
   const [showMore, setShowMore] = useState(false);
   const photoRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLInputElement>(null);
+
+  const sheetSwipe = useSwipeDismiss(() => setShowSheet(false));
+  const moreSwipe = useSwipeDismiss(() => setShowMore(false));
 
   const handleMedia = (e: React.ChangeEvent<HTMLInputElement>, type: "image" | "video") => {
     const file = e.target.files?.[0];
@@ -93,43 +117,50 @@ export function BottomNav() {
         </div>
       </nav>
 
-      {/* More sheet */}
+      {/* Backdrop shared */}
       <AnimatePresence>
-        {showMore && (
-          <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 md:hidden"
-              onClick={() => setShowMore(false)} />
-            <motion.div
-              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
-              transition={{ type: "spring", stiffness: 380, damping: 38 }}
-              drag="y" dragConstraints={{ top: 0 }} dragElastic={{ top: 0, bottom: 0.25 }}
-              onDragEnd={(_, info) => { if (info.offset.y > 80 || info.velocity.y > 400) setShowMore(false); }}
-              className="fixed bottom-0 left-0 right-0 z-50 glass border-t border-border rounded-t-3xl px-5 pt-4 pb-10 md:hidden cursor-grab active:cursor-grabbing">
-              <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-5" />
-              <p className="text-xs font-bold text-text-muted uppercase tracking-widest text-center mb-5">Earn &amp; Build</p>
-              <div className="grid grid-cols-4 gap-3 mb-5">
-                {MORE_ITEMS.map((item) => {
-                  const active = pathname === item.href;
-                  return (
-                    <Link key={item.href} href={item.href} onClick={() => setShowMore(false)}
-                      className="flex flex-col items-center gap-2">
-                      <div className={cn("w-14 h-14 rounded-2xl border flex items-center justify-center transition-all", item.bg, active && "ring-2 ring-primary/40")}>
-                        <item.icon size={22} className={item.color} />
-                      </div>
-                      <span className="text-[10px] font-medium text-text-muted text-center leading-tight">{item.label}</span>
-                    </Link>
-                  );
-                })}
-              </div>
-              <button onClick={() => setShowMore(false)}
-                className="w-full py-3.5 rounded-2xl bg-white/[0.04] text-text-muted text-sm font-semibold">
-                Close
-              </button>
-            </motion.div>
-          </>
+        {(showMore || showSheet) && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 md:hidden"
+            onClick={() => { setShowMore(false); setShowSheet(false); }} />
         )}
       </AnimatePresence>
+
+      {/* More sheet — CSS transition, native touch drag */}
+      <div
+        className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass border-t border-border rounded-t-3xl px-5 pt-4 pb-10"
+        style={{
+          transform: showMore ? `translateY(${moreSwipe.dragY}px)` : "translateY(100%)",
+          transition: moreSwipe.dragY > 0 ? "none" : "transform 0.4s cubic-bezier(0.32, 0.72, 0, 1)",
+          pointerEvents: showMore ? "auto" : "none",
+        }}>
+        {/* Drag handle — full-width touch target */}
+        <div className="flex justify-center pb-3 -mx-5 px-5 pt-1 cursor-grab active:cursor-grabbing"
+          onTouchStart={moreSwipe.onTouchStart}
+          onTouchMove={moreSwipe.onTouchMove}
+          onTouchEnd={moreSwipe.onTouchEnd}>
+          <div className="w-10 h-1 bg-white/20 rounded-full" />
+        </div>
+        <p className="text-xs font-bold text-text-muted uppercase tracking-widest text-center mb-5">Earn &amp; Build</p>
+        <div className="grid grid-cols-4 gap-3 mb-5">
+          {MORE_ITEMS.map((item) => {
+            const active = pathname === item.href;
+            return (
+              <Link key={item.href} href={item.href} onClick={() => setShowMore(false)}
+                className="flex flex-col items-center gap-2">
+                <div className={cn("w-14 h-14 rounded-2xl border flex items-center justify-center transition-all", item.bg, active && "ring-2 ring-primary/40")}>
+                  <item.icon size={22} className={item.color} />
+                </div>
+                <span className="text-[10px] font-medium text-text-muted text-center leading-tight">{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+        <button onClick={() => setShowMore(false)}
+          className="w-full py-3.5 rounded-2xl bg-white/[0.04] text-text-muted text-sm font-semibold">
+          Close
+        </button>
+      </div>
 
       {/* Hidden file inputs */}
       <input ref={photoRef} type="file" accept="image/*" className="hidden"
@@ -137,60 +168,58 @@ export function BottomNav() {
       <input ref={videoRef} type="file" accept="video/*" className="hidden"
         onChange={(e) => handleMedia(e, "video")} />
 
-      {/* Create bottom sheet */}
-      <AnimatePresence>
-        {showSheet && (
-          <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 md:hidden"
-              onClick={() => setShowSheet(false)} />
-            <motion.div
-              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
-              transition={{ type: "spring", stiffness: 380, damping: 38 }}
-              drag="y" dragConstraints={{ top: 0 }} dragElastic={{ top: 0, bottom: 0.25 }}
-              onDragEnd={(_, info) => { if (info.offset.y > 80 || info.velocity.y > 400) setShowSheet(false); }}
-              className="fixed bottom-0 left-0 right-0 z-50 glass border-t border-border rounded-t-3xl px-6 pt-4 pb-10 md:hidden cursor-grab active:cursor-grabbing">
-              <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-7" />
-              <p className="text-xs font-semibold text-text-muted uppercase tracking-widest text-center mb-6">Create</p>
-              <div className="grid grid-cols-3 gap-5 mb-6">
-                {[
-                  {
-                    icon: <PenLine size={26} className="text-primary-light" />,
-                    label: "Write",
-                    bg: "bg-primary/15 border border-primary/20",
-                    action: () => { setShowSheet(false); router.push("/create"); }
-                  },
-                  {
-                    icon: <Camera size={26} className="text-accent-amber" />,
-                    label: "Photo",
-                    bg: "bg-accent-amber/15 border border-accent-amber/20",
-                    action: () => photoRef.current?.click()
-                  },
-                  {
-                    icon: <Video size={26} className="text-accent-cyan" />,
-                    label: "Video",
-                    bg: "bg-accent-cyan/15 border border-accent-cyan/20",
-                    action: () => videoRef.current?.click()
-                  },
-                ].map((opt) => (
-                  <motion.button key={opt.label} whileTap={{ scale: 0.92 }}
-                    onClick={opt.action}
-                    className="flex flex-col items-center gap-3">
-                    <div className={cn("w-18 h-18 w-[72px] h-[72px] rounded-2xl flex items-center justify-center", opt.bg)}>
-                      {opt.icon}
-                    </div>
-                    <span className="text-sm font-semibold text-text-secondary">{opt.label}</span>
-                  </motion.button>
-                ))}
+      {/* Create sheet — CSS transition, native touch drag */}
+      <div
+        className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass border-t border-border rounded-t-3xl px-6 pt-4 pb-10"
+        style={{
+          transform: showSheet ? `translateY(${sheetSwipe.dragY}px)` : "translateY(100%)",
+          transition: sheetSwipe.dragY > 0 ? "none" : "transform 0.4s cubic-bezier(0.32, 0.72, 0, 1)",
+          pointerEvents: showSheet ? "auto" : "none",
+        }}>
+        {/* Drag handle */}
+        <div className="flex justify-center pb-3 -mx-6 px-6 pt-1 cursor-grab active:cursor-grabbing"
+          onTouchStart={sheetSwipe.onTouchStart}
+          onTouchMove={sheetSwipe.onTouchMove}
+          onTouchEnd={sheetSwipe.onTouchEnd}>
+          <div className="w-10 h-1 bg-white/20 rounded-full" />
+        </div>
+        <p className="text-xs font-semibold text-text-muted uppercase tracking-widest text-center mb-6">Create</p>
+        <div className="grid grid-cols-3 gap-5 mb-6">
+          {[
+            {
+              icon: <PenLine size={26} className="text-primary-light" />,
+              label: "Write",
+              bg: "bg-primary/15 border border-primary/20",
+              action: () => { setShowSheet(false); router.push("/create"); }
+            },
+            {
+              icon: <Camera size={26} className="text-accent-amber" />,
+              label: "Photo",
+              bg: "bg-accent-amber/15 border border-accent-amber/20",
+              action: () => photoRef.current?.click()
+            },
+            {
+              icon: <Video size={26} className="text-accent-cyan" />,
+              label: "Video",
+              bg: "bg-accent-cyan/15 border border-accent-cyan/20",
+              action: () => videoRef.current?.click()
+            },
+          ].map((opt) => (
+            <motion.button key={opt.label} whileTap={{ scale: 0.92 }}
+              onClick={opt.action}
+              className="flex flex-col items-center gap-3">
+              <div className={cn("w-[72px] h-[72px] rounded-2xl flex items-center justify-center", opt.bg)}>
+                {opt.icon}
               </div>
-              <button onClick={() => setShowSheet(false)}
-                className="w-full py-3.5 rounded-2xl bg-white/[0.04] text-text-muted text-sm font-semibold hover:bg-white/[0.07] transition-colors">
-                Cancel
-              </button>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+              <span className="text-sm font-semibold text-text-secondary">{opt.label}</span>
+            </motion.button>
+          ))}
+        </div>
+        <button onClick={() => setShowSheet(false)}
+          className="w-full py-3.5 rounded-2xl bg-white/[0.04] text-text-muted text-sm font-semibold hover:bg-white/[0.07] transition-colors">
+          Cancel
+        </button>
+      </div>
     </>
   );
 }
