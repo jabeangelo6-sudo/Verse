@@ -129,16 +129,6 @@ export function VoicePlayer({ languages, creatorName, content }: Props) {
         </button>
       </div>
 
-      {/* Animated wave when playing */}
-      {playing && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-0.5 mt-1.5">
-          {[1, 2, 3, 4, 5].map(i => (
-            <motion.div key={i} className="w-0.5 bg-primary-light rounded-full"
-              animate={{ height: ["4px", `${6 + i * 3}px`, "4px"] }}
-              transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.1, ease: "easeInOut" }} />
-          ))}
-        </motion.div>
-      )}
 
       <AnimatePresence>
         {open && (
