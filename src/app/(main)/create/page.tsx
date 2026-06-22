@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Lock, Globe, Sparkles, Loader2, Send, Zap, Target, Link2, X, ImageIcon, Video } from "lucide-react";
+import { ArrowLeft, Lock, Globe, Sparkles, Loader2, Send, Zap, Target, Link2, X, ImageIcon, Video, Users2, Search, Plus, Minus } from "lucide-react";
 import { mediaStore } from "@/lib/media-store";
 import { uploadMedia } from "@/lib/upload";
 import { buildShareText } from "@/lib/generate-cta";
@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 
 type Visibility = "public" | "exclusive";
 type AIAction = "improve" | "expand" | "shorten" | "hooks";
+type Collaborator = { id: string; username: string; displayName: string; avatar: string; splitPercent: number };
 
 const CROSS_POST_PLATFORMS = [
   { id: "twitter", label: "X", color: "bg-black border-zinc-700" },
@@ -50,8 +51,55 @@ export default function CreatePage() {
   const [aiLoading, setAiLoading] = useState<AIAction | null>(null);
   const [publishing, setPublishing] = useState(false);
   const [selectedPlatforms, setSelectedPlatforms] = useState<Set<string>>(new Set(["twitter", "farcaster"]));
+  const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
+  const [showCollabSearch, setShowCollabSearch] = useState(false);
+  const [collabQuery, setCollabQuery] = useState("");
+  const [collabResults, setCollabResults] = useState<Collaborator[]>([]);
+  const [collabSearching, setCollabSearching] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
+
+  const myShare = Math.max(0, 100 - collaborators.reduce((s, c) => s + c.splitPercent, 0));
+
+  const searchCollaborators = async (q: string) => {
+    if (!q.trim()) { setCollabResults([]); return; }
+    setCollabSearching(true);
+    try {
+      const res = await fetch(`/api/users?q=${encodeURIComponent(q)}&limit=5`);
+      if (res.ok) {
+        const data = await res.json();
+        setCollabResults((data.users ?? [])
+          .filter((u: { id: string }) => u.id !== user?.id && !collaborators.find(c => c.id === u.id))
+          .map((u: { id: string; username: string; displayName?: string; display_name?: string; avatar?: string }) => ({
+            id: u.id, username: u.username,
+            displayName: u.displayName ?? u.display_name ?? u.username,
+            avatar: u.avatar ?? `https://api.dicebear.com/7.x/avataaars/svg?seed=${u.username}`,
+            splitPercent: 20,
+          })));
+      }
+    } catch {}
+    setCollabSearching(false);
+  };
+
+  const addCollaborator = (c: Collaborator) => {
+    const totalAfter = collaborators.reduce((s, x) => s + x.splitPercent, 0) + c.splitPercent;
+    if (totalAfter >= 100) { toast("warning", "Split can't exceed 100%"); return; }
+    setCollaborators(prev => [...prev, c]);
+    setCollabQuery("");
+    setCollabResults([]);
+  };
+
+  const removeCollaborator = (id: string) => setCollaborators(prev => prev.filter(c => c.id !== id));
+
+  const adjustSplit = (id: string, delta: number) => {
+    setCollaborators(prev => prev.map(c => {
+      if (c.id !== id) return c;
+      const next = Math.max(5, Math.min(95, c.splitPercent + delta));
+      const others = prev.filter(x => x.id !== id).reduce((s, x) => s + x.splitPercent, 0);
+      if (others + next >= 100) return c;
+      return { ...c, splitPercent: next };
+    }));
+  };
 
   const connectedPlatforms = CROSS_POST_PLATFORMS.filter(p => isConnected(p.id));
 
@@ -116,6 +164,7 @@ export default function CreatePage() {
           media: mediaUrl,
           isExclusive: visibility === "exclusive",
           tags: [],
+          collaborators: collaborators.map(c => ({ userId: c.id, splitPercent: c.splitPercent })),
         }),
       });
 
@@ -241,6 +290,93 @@ export default function CreatePage() {
                 {action.label}
               </button>
             ))}
+          </div>
+
+          {/* Collab split */}
+          <div className="rounded-2xl border border-border bg-white/[0.02] overflow-hidden">
+            <button onClick={() => setShowCollabSearch(v => !v)}
+              className="w-full flex items-center justify-between px-4 py-3 text-sm hover:bg-white/[0.03] transition-colors">
+              <div className="flex items-center gap-2 text-text-secondary font-medium">
+                <Users2 size={14} className="text-accent-cyan" />
+                {collaborators.length > 0 ? `${collaborators.length} collaborator${collaborators.length > 1 ? "s" : ""} added` : "Add collaborator"}
+              </div>
+              {collaborators.length > 0 && (
+                <span className="text-xs font-bold text-accent-green">You keep {myShare}%</span>
+              )}
+            </button>
+
+            {showCollabSearch && (
+              <div className="border-t border-border px-4 pb-4 pt-3 space-y-3">
+                {/* Current collaborators */}
+                {collaborators.length > 0 && (
+                  <div className="space-y-2">
+                    {/* My share */}
+                    <div className="flex items-center gap-3 py-1">
+                      <img src={user?.avatar ?? `https://api.dicebear.com/7.x/avataaars/svg?seed=you`}
+                        alt="You" className="w-7 h-7 rounded-full bg-white/[0.06]" />
+                      <div className="flex-1 text-xs text-text-secondary font-medium">You (primary)</div>
+                      <span className="text-sm font-bold text-accent-green">{myShare}%</span>
+                    </div>
+                    {collaborators.map(c => (
+                      <div key={c.id} className="flex items-center gap-3 py-1">
+                        <img src={c.avatar} alt={c.displayName} className="w-7 h-7 rounded-full bg-white/[0.06]" />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-semibold text-text-primary truncate">{c.displayName}</div>
+                          <div className="text-[10px] text-text-muted">@{c.username}</div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <button onClick={() => adjustSplit(c.id, -5)}
+                            className="w-6 h-6 rounded-lg bg-white/[0.06] flex items-center justify-center text-text-muted hover:text-text-primary transition-colors">
+                            <Minus size={10} />
+                          </button>
+                          <span className="text-sm font-bold text-text-primary w-9 text-center">{c.splitPercent}%</span>
+                          <button onClick={() => adjustSplit(c.id, 5)}
+                            className="w-6 h-6 rounded-lg bg-white/[0.06] flex items-center justify-center text-text-muted hover:text-text-primary transition-colors">
+                            <Plus size={10} />
+                          </button>
+                        </div>
+                        <button onClick={() => removeCollaborator(c.id)}
+                          className="w-6 h-6 rounded-lg bg-white/[0.04] flex items-center justify-center text-text-muted hover:text-accent-rose transition-colors">
+                          <X size={11} />
+                        </button>
+                      </div>
+                    ))}
+                    <div className="h-px bg-border my-1" />
+                  </div>
+                )}
+
+                {/* Search input */}
+                <div className="relative">
+                  <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+                  <input value={collabQuery}
+                    onChange={e => { setCollabQuery(e.target.value); searchCollaborators(e.target.value); }}
+                    placeholder="Search creator by username…"
+                    className="input-base pl-8 text-sm" />
+                </div>
+
+                {/* Search results */}
+                {collabSearching && (
+                  <div className="flex items-center gap-2 py-2 text-xs text-text-muted">
+                    <Loader2 size={12} className="animate-spin" /> Searching…
+                  </div>
+                )}
+                {collabResults.map(r => (
+                  <button key={r.id} onClick={() => addCollaborator(r)}
+                    className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/[0.05] transition-colors text-left">
+                    <img src={r.avatar} alt={r.displayName} className="w-8 h-8 rounded-full bg-white/[0.06]" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold text-text-primary">{r.displayName}</div>
+                      <div className="text-xs text-text-muted">@{r.username}</div>
+                    </div>
+                    <span className="text-xs text-accent-cyan font-semibold">+ Add</span>
+                  </button>
+                ))}
+
+                <p className="text-[10px] text-text-muted">
+                  Revenue is split automatically on every tip, membership, and license. Verse takes 10% first, then splits the rest.
+                </p>
+              </div>
+            )}
           </div>
 
           <button className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-white/[0.04] border border-border hover:border-border-strong text-text-muted hover:text-text-secondary transition-all w-fit">
