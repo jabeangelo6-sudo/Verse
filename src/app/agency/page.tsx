@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 const BENEFITS = [
-  { icon: <DollarSign size={20} className="text-accent-green" />, title: "10% commission forever", desc: "Earn 10% of Verse's platform fee on every transaction your creators make. Passive income that compounds as your roster grows." },
+  { icon: <DollarSign size={20} className="text-accent-green" />, title: "15% commission forever", desc: "Earn 15% of Verse's platform fee on every transaction your creators make. Passive income that compounds as your roster grows." },
   { icon: <TrendingUp size={20} className="text-primary-light" />, title: "Real-time earnings dashboard", desc: "See every creator's performance, earnings, and your commission in one place. Full transparency, always." },
   { icon: <Users size={20} className="text-accent-cyan" />, title: "Founding Creator status", desc: "Your top 5 creators get featured placement on Verse's homepage and a Founding Creator badge for 90 days." },
   { icon: <Star size={20} className="text-accent-amber" />, title: "Priority support", desc: "Dedicated partner manager, priority onboarding for new creators, and early access to every new feature." },
@@ -16,11 +16,11 @@ const STEPS = [
   { n: "01", title: "Apply", desc: "Tell us about your agency and roster. We review within 48 hours." },
   { n: "02", title: "Get approved", desc: "Receive your unique agency referral link and partner dashboard access." },
   { n: "03", title: "Invite creators", desc: "Send your creators a personalised invite link. They sign up in 2 minutes." },
-  { n: "04", title: "Earn together", desc: "Every time a creator earns on Verse, you earn 10% of our platform fee. Forever." },
+  { n: "04", title: "Earn together", desc: "Every time a creator earns on Verse, you earn 15% of our platform fee. Forever." },
 ];
 
 const FAQS = [
-  { q: "How does the 10% commission work?", a: "You earn 10% of Verse's platform fee — not 10% of your creators' earnings. Verse takes 10% of all creator earnings. You get 10% of that. So on $1,000 a creator earns, Verse gets $100, you get $10. Your creators' take-home is never affected." },
+  { q: "How does the 15% commission work?", a: "You earn 15% of Verse's platform fee — not 15% of your creators' earnings. Verse takes 10% of all creator earnings. You get 15% of that. So on $1,000 a creator earns, Verse gets $100, you get $15. Your creators' take-home is never affected." },
   { q: "Is there a minimum roster size to apply?", a: "No minimum. We work with boutique agencies with 5 creators and large agencies with 500+. What matters is creator quality and engagement, not follower count." },
   { q: "How long does the commission last?", a: "Forever. As long as a creator you referred is active on Verse, you earn commission on their transactions. There is no expiry." },
   { q: "Can creators already be on other platforms?", a: "Absolutely. Verse is built for creators to cross-post everywhere. Your creators don't have to leave TikTok, Instagram, or YouTube — they just add Verse as their owned monetisation layer." },
@@ -37,7 +37,7 @@ export default function AgencyPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const verseMonthlyFee = creators * avgEarnings * 0.10;
-  const agencyCommission = verseMonthlyFee * 0.10;
+  const agencyCommission = verseMonthlyFee * 0.15;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,7 +76,7 @@ export default function AgencyPage() {
             <span className="gradient-text">So do you.</span>
           </h1>
           <p className="text-xl text-text-secondary max-w-2xl mx-auto mb-10 leading-relaxed">
-            Partner with Verse and earn 10% commission on every dollar your creators make on the platform — forever. No caps, no expiry, no catch.
+            Partner with Verse and earn 15% commission on every dollar your creators make on the platform — forever. No caps, no expiry, no catch.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <a href="#apply" className="px-8 py-4 rounded-2xl bg-gradient-primary text-white font-bold text-base shadow-glow flex items-center justify-center gap-2">
@@ -156,7 +156,7 @@ export default function AgencyPage() {
               ${agencyCommission.toLocaleString(undefined, { maximumFractionDigits: 0 })}
             </div>
             <div className="text-xs text-text-muted">
-              {creators} creators × ${avgEarnings}/mo × 10% Verse fee × 10% your commission
+              {creators} creators × ${avgEarnings}/mo × 10% Verse fee × 15% your commission
             </div>
             <div className="mt-4 text-sm text-text-secondary">
               Your creators keep <span className="text-accent-green font-bold">$
