@@ -25,8 +25,21 @@ type IntegrationDef = {
   comingSoon?: boolean;
 };
 
+const CUSTOM_ICONS: Record<string, React.ReactNode> = {
+  farcaster: <span className="font-black text-white text-sm leading-none">f</span>,
+  beehiiv: <span className="text-white text-base leading-none">🐝</span>,
+  convertkit: <span className="font-black text-[#0f172a] text-xl leading-none">k</span>,
+  make: (
+    <div className="flex gap-[3px] items-center">
+      {[0,1,2].map(i => <div key={i} className="w-[4px] h-[14px] bg-white rounded-full" style={{ transform: `rotate(${-20 + i * 20}deg)` }} />)}
+    </div>
+  ),
+  tiktok: <span className="text-white text-base leading-none">♪</span>,
+};
+
 function BrandIcon({ slug }: { slug: string }) {
-  return <img src={`https://cdn.simpleicons.org/${slug}/ffffff`} className="w-4 h-4" alt={slug} />;
+  if (CUSTOM_ICONS[slug]) return <>{CUSTOM_ICONS[slug]}</>;
+  return <img src={`https://cdn.simpleicons.org/${slug}/ffffff`} className="w-4 h-4" alt={slug} onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />;
 }
 
 const INTEGRATIONS: IntegrationDef[] = [
