@@ -165,10 +165,12 @@ export function BottomNav() {
           transform: showMore ? "translateY(0)" : "translateY(100%)",
           transition: EASE,
           pointerEvents: showMore ? "auto" : "none",
-        }}>
-        {/* Handle — pointer events here, touchAction none prevents scroll conflict */}
-        <div className="flex justify-center pt-4 pb-4" {...moreSwipe.handleProps}>
-          <div className="w-10 h-1 bg-white/20 rounded-full pointer-events-none" />
+          touchAction: "none",
+        }}
+        {...moreSwipe.handleProps}>
+        {/* Visual handle only */}
+        <div className="flex justify-center pt-4 pb-4">
+          <div className="w-10 h-1 bg-white/20 rounded-full" />
         </div>
         <p className="text-xs font-bold text-text-muted uppercase tracking-widest text-center mb-5">Earn &amp; Build</p>
         <div className="grid grid-cols-4 gap-3 mb-5">
@@ -203,10 +205,12 @@ export function BottomNav() {
           transform: showSheet ? "translateY(0)" : "translateY(100%)",
           transition: EASE,
           pointerEvents: showSheet ? "auto" : "none",
-        }}>
-        {/* Handle */}
-        <div className="flex justify-center pt-4 pb-4" {...sheetSwipe.handleProps}>
-          <div className="w-10 h-1 bg-white/20 rounded-full pointer-events-none" />
+          touchAction: "none",
+        }}
+        {...sheetSwipe.handleProps}>
+        {/* Visual handle only */}
+        <div className="flex justify-center pt-4 pb-4">
+          <div className="w-10 h-1 bg-white/20 rounded-full" />
         </div>
         <p className="text-xs font-semibold text-text-muted uppercase tracking-widest text-center mb-6">Create</p>
         <div className="grid grid-cols-3 gap-5 mb-6">
