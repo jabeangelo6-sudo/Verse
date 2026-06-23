@@ -9,11 +9,7 @@ export type Creator = {
   following: number;
   posts: number;
   earnings: number;
-  tokenSymbol: string;
-  tokenPrice: number;
-  tokenChange: number;
   coverGradient: string;
-  walletAddress: string;
   tags: string[];
   earlyBelieverThreshold: number;
   foundingSubscriberSlots: number;
@@ -57,7 +53,7 @@ export type Post = {
 
 export type Notification = {
   id: string;
-  type: "like" | "follow" | "tip" | "comment" | "mention" | "token" | "early_believer" | "stake_resolved" | "sub_nft";
+  type: "like" | "follow" | "tip" | "comment" | "mention" | "milestone" | "early_believer" | "stake_resolved" | "membership";
   actor: Creator;
   content: string;
   createdAt: Date;
@@ -77,11 +73,7 @@ export const MOCK_CREATORS: Creator[] = [
     following: 312,
     posts: 847,
     earnings: 28450.50,
-    tokenSymbol: "ALEX",
-    tokenPrice: 0,
-    tokenChange: 0,
     coverGradient: "from-blue-900 via-violet-800 to-indigo-900",
-    walletAddress: "",
     tags: ["Tech", "Startups", "AI"],
     earlyBelieverThreshold: 1000,
     foundingSubscriberSlots: 100,
@@ -100,11 +92,7 @@ export const MOCK_CREATORS: Creator[] = [
     following: 520,
     posts: 1204,
     earnings: 142300.00,
-    tokenSymbol: "MIA",
-    tokenPrice: 0,
-    tokenChange: 0,
     coverGradient: "from-pink-900 via-rose-800 to-orange-900",
-    walletAddress: "",
     tags: ["Art", "Design", "Creative"],
     earlyBelieverThreshold: 1000,
     foundingSubscriberSlots: 50,
@@ -123,11 +111,7 @@ export const MOCK_CREATORS: Creator[] = [
     following: 840,
     posts: 523,
     earnings: 18200.75,
-    tokenSymbol: "JB",
-    tokenPrice: 0,
-    tokenChange: 0,
     coverGradient: "from-emerald-900 via-teal-800 to-cyan-900",
-    walletAddress: "",
     tags: ["Finance", "Money", "Business"],
     earlyBelieverThreshold: 1000,
     foundingSubscriberSlots: 200,
@@ -148,11 +132,7 @@ export const MOCK_CREATORS: Creator[] = [
     following: 289,
     posts: 932,
     earnings: 87650.00,
-    tokenSymbol: "ZW",
-    tokenPrice: 0,
-    tokenChange: 0,
     coverGradient: "from-emerald-900 via-green-800 to-teal-900",
-    walletAddress: "",
     tags: ["Fitness", "Wellness", "Nutrition"],
     earlyBelieverThreshold: 1000,
     foundingSubscriberSlots: 75,
@@ -173,11 +153,7 @@ export const MOCK_CREATORS: Creator[] = [
     following: 1100,
     posts: 389,
     earnings: 9800.25,
-    tokenSymbol: "MJ",
-    tokenPrice: 0,
-    tokenChange: 0,
     coverGradient: "from-amber-900 via-orange-800 to-red-900",
-    walletAddress: "",
     tags: ["Music", "Production", "Entertainment"],
     earlyBelieverThreshold: 1000,
     foundingSubscriberSlots: 150,
@@ -465,11 +441,7 @@ export const ME = {
   following: 89,
   posts: 34,
   earnings: 1820.50,
-  tokenSymbol: "YOU",
-  tokenPrice: 0,
-  tokenChange: 0,
   coverGradient: "from-violet-900 via-purple-800 to-indigo-900",
-  walletAddress: "",
   tags: ["Creator"],
   earlyBelieverThreshold: 1000,
   foundingSubscriberSlots: 100,
