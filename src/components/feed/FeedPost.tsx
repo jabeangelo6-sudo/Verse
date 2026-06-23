@@ -7,6 +7,7 @@ import { Heart, MessageCircle, Repeat2, Zap, MoreHorizontal, Lock, BadgeCheck, T
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { Popover } from "@/components/ui/Popover";
 import { HumanityBadge } from "@/components/features/HumanityBadge";
 import { ReputationStake } from "@/components/features/ReputationStake";
 import { ExpertBadge } from "@/components/features/ExpertBadge";
@@ -144,40 +145,30 @@ export function FeedPost({ post }: { post: Post }) {
               className="w-7 h-7 rounded-lg hover:bg-white/[0.05] flex items-center justify-center text-text-muted transition-all">
               <MoreHorizontal size={15} />
             </button>
-            <AnimatePresence>
-              {showMenu && (
-                <>
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-[60]" onClick={() => setShowMenu(false)} />
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.92, y: -4 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.92, y: -4 }}
-                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                    className="absolute right-0 top-8 z-[61] w-52 glass border border-border rounded-2xl py-1.5 shadow-card-hover overflow-hidden">
-                    <button onClick={() => { handleCopyLink(); setShowMenu(false); }}
-                      className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-text-secondary hover:text-text-primary hover:bg-white/[0.05] transition-colors">
-                      <LinkIcon size={13} className="text-text-muted" /> Copy link
-                    </button>
-                    <button onClick={() => { openPost(); setShowMenu(false); }}
-                      className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-text-secondary hover:text-text-primary hover:bg-white/[0.05] transition-colors">
-                      <ExternalLink size={13} className="text-text-muted" /> Open post
-                    </button>
-                    <div className="h-px bg-border mx-3 my-1" />
-                    <button onClick={() => { setHidden(true); setShowMenu(false); toast("success", "Post hidden"); }}
-                      className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-text-secondary hover:text-text-primary hover:bg-white/[0.05] transition-colors">
-                      <EyeOff size={13} className="text-text-muted" /> Not interested
-                    </button>
-                    <button onClick={() => { setShowMenu(false); toast("success", "Reported", "Our team will review this"); }}
-                      className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-accent-rose hover:bg-accent-rose/8 transition-colors">
-                      <Flag size={13} /> Report post
-                    </button>
-                    <button onClick={() => { setShowMenu(false); toast("success", `Blocked @${post.creator.username}`); }}
-                      className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-accent-rose hover:bg-accent-rose/8 transition-colors">
-                      <UserX size={13} /> Block @{post.creator.username}
-                    </button>
-                  </motion.div>
-                </>
-              )}
-            </AnimatePresence>
+            <Popover open={showMenu} onClose={() => setShowMenu(false)}
+              anchor="top-right" className="w-52 glass border border-border rounded-2xl py-1.5 shadow-card-hover overflow-hidden">
+              <button onClick={() => { handleCopyLink(); setShowMenu(false); }}
+                className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-text-secondary hover:text-text-primary hover:bg-white/[0.05] transition-colors">
+                <LinkIcon size={13} className="text-text-muted" /> Copy link
+              </button>
+              <button onClick={() => { openPost(); setShowMenu(false); }}
+                className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-text-secondary hover:text-text-primary hover:bg-white/[0.05] transition-colors">
+                <ExternalLink size={13} className="text-text-muted" /> Open post
+              </button>
+              <div className="h-px bg-border mx-3 my-1" />
+              <button onClick={() => { setHidden(true); setShowMenu(false); toast("success", "Post hidden"); }}
+                className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-text-secondary hover:text-text-primary hover:bg-white/[0.05] transition-colors">
+                <EyeOff size={13} className="text-text-muted" /> Not interested
+              </button>
+              <button onClick={() => { setShowMenu(false); toast("success", "Reported", "Our team will review this"); }}
+                className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-accent-rose hover:bg-accent-rose/8 transition-colors">
+                <Flag size={13} /> Report post
+              </button>
+              <button onClick={() => { setShowMenu(false); toast("success", `Blocked @${post.creator.username}`); }}
+                className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-accent-rose hover:bg-accent-rose/8 transition-colors">
+                <UserX size={13} /> Block @{post.creator.username}
+              </button>
+            </Popover>
           </div>
         </div>
       </div>
@@ -266,32 +257,22 @@ export function FeedPost({ post }: { post: Post }) {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-text-muted hover:text-primary-light hover:bg-primary/8 transition-all">
               <Share2 size={15} />
             </button>
-            <AnimatePresence>
-              {showShare && (
-                <>
-                <div className="fixed inset-0 z-[9]" onClick={() => setShowShare(false)} />
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9, y: 8 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 8 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                  className="absolute bottom-10 left-0 glass border border-border rounded-2xl p-3 shadow-card-hover z-10 min-w-[180px] space-y-1"
-                >
-                  <button onClick={handleCastFarcaster} className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-white/[0.06] text-xs text-text-secondary hover:text-text-primary transition-colors">
-                    <span className="w-3 h-3 rounded-sm bg-violet-500 flex-shrink-0" /> Cast on Farcaster
-                  </button>
-                  <button onClick={handleShareTwitter} className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-white/[0.06] text-xs text-text-secondary hover:text-text-primary transition-colors">
-                    <ExternalLink size={13} className="text-sky-400" /> Post on X / Twitter
-                  </button>
-                  <button onClick={handleShareWhatsApp} className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-white/[0.06] text-xs text-text-secondary hover:text-text-primary transition-colors">
-                    <MessageCircle size={13} className="text-accent-green" /> Share on WhatsApp
-                  </button>
-                  <button onClick={handleCopyLink} className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-white/[0.06] text-xs text-text-secondary hover:text-text-primary transition-colors">
-                    {shareCopied ? <Check size={13} className="text-accent-green" /> : <Copy size={13} />}
-                    {shareCopied ? "Copied!" : "Copy link"}
-                  </button>
-                </motion.div>
-                </>
-              )}
-            </AnimatePresence>
+            <Popover open={showShare} onClose={() => setShowShare(false)}
+              anchor="bottom-left" className="glass border border-border rounded-2xl p-3 shadow-card-hover min-w-[180px] space-y-1">
+              <button onClick={handleCastFarcaster} className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-white/[0.06] text-xs text-text-secondary hover:text-text-primary transition-colors">
+                <span className="w-3 h-3 rounded-sm bg-violet-500 flex-shrink-0" /> Cast on Farcaster
+              </button>
+              <button onClick={handleShareTwitter} className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-white/[0.06] text-xs text-text-secondary hover:text-text-primary transition-colors">
+                <ExternalLink size={13} className="text-sky-400" /> Post on X / Twitter
+              </button>
+              <button onClick={handleShareWhatsApp} className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-white/[0.06] text-xs text-text-secondary hover:text-text-primary transition-colors">
+                <MessageCircle size={13} className="text-accent-green" /> Share on WhatsApp
+              </button>
+              <button onClick={handleCopyLink} className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-white/[0.06] text-xs text-text-secondary hover:text-text-primary transition-colors">
+                {shareCopied ? <Check size={13} className="text-accent-green" /> : <Copy size={13} />}
+                {shareCopied ? "Copied!" : "Copy link"}
+              </button>
+            </Popover>
           </div>
         </div>
 
@@ -302,28 +283,18 @@ export function FeedPost({ post }: { post: Post }) {
             <Zap size={14} className="fill-accent-amber" />
             <span>Tip</span>
           </motion.button>
-          <AnimatePresence>
-            {showTip && (
-              <>
-              <div className="fixed inset-0 z-[9]" onClick={() => setShowTip(false)} />
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9, y: 8 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 8 }}
-                transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                className="absolute bottom-10 right-0 glass border border-border rounded-2xl p-3 shadow-card-hover z-10 min-w-[180px]"
-              >
-                <p className="text-xs text-text-muted mb-2 font-medium">Send a tip</p>
-                <div className="grid grid-cols-3 gap-1.5">
-                  {[1, 5, 10, 25, 50, 100].map(amt => (
-                    <button key={amt} onClick={() => handleTip(amt)} disabled={tipping}
-                      className="px-2 py-1.5 rounded-lg bg-accent-amber/10 hover:bg-accent-amber/20 text-accent-amber text-xs font-bold transition-colors border border-accent-amber/15 disabled:opacity-50">
-                      ${amt}
-                    </button>
-                  ))}
-                </div>
-              </motion.div>
-              </>
-            )}
-          </AnimatePresence>
+          <Popover open={showTip} onClose={() => setShowTip(false)}
+            anchor="bottom-right" className="glass border border-border rounded-2xl p-3 shadow-card-hover min-w-[180px]">
+            <p className="text-xs text-text-muted mb-2 font-medium">Send a tip</p>
+            <div className="grid grid-cols-3 gap-1.5">
+              {[1, 5, 10, 25, 50, 100].map(amt => (
+                <button key={amt} onClick={() => handleTip(amt)} disabled={tipping}
+                  className="px-2 py-1.5 rounded-lg bg-accent-amber/10 hover:bg-accent-amber/20 text-accent-amber text-xs font-bold transition-colors border border-accent-amber/15 disabled:opacity-50">
+                  ${amt}
+                </button>
+              ))}
+            </div>
+          </Popover>
         </div>
       </div>
       {/* Comments */}
