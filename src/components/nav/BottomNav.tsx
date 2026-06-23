@@ -68,7 +68,6 @@ function useSwipeDismiss(onDismiss: () => void) {
     onPointerDown,
     onPointerMove,
     onPointerUp,
-    style: { touchAction: "none" } as React.CSSProperties,
   };
 
   return { sheetRef, handleProps };
