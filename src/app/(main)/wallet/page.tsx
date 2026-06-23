@@ -1,13 +1,14 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowDown, ArrowUp, Zap, TrendingUp, TrendingDown, CreditCard, RefreshCw, Users, DollarSign, BarChart3 } from "lucide-react";
+import { ArrowDown, ArrowUp, Zap, TrendingUp, TrendingDown, CreditCard, RefreshCw, Users, DollarSign, BarChart3, CheckCircle2, AlertCircle } from "lucide-react";
 import { TopBar } from "@/components/nav/TopBar";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { formatUSD, timeAgo } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { useSearchParams } from "next/navigation";
 
 type EarningsTab = "overview" | "history";
 
@@ -30,8 +31,43 @@ const TX_CONFIG: Record<string, { label: string; color: string; icon: React.Reac
 export default function EarningsPage() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<EarningsTab>("overview");
   const [cashingOut, setCashingOut] = useState(false);
+  const [stripeConnected, setStripeConnected] = useState(false);
+  const [connectingStripe, setConnectingStripe] = useState(false);
+
+  useEffect(() => {
+    const stripeStatus = searchParams.get("stripe");
+    if (stripeStatus === "success") {
+      setStripeConnected(true);
+      toast("success", "Stripe connected", "You can now receive payouts");
+    } else if (stripeStatus === "error") {
+      toast("warning", "Stripe connection failed", "Please try again");
+    }
+  }, [searchParams, toast]);
+
+  const handleConnectStripe = async () => {
+    if (!user) { toast("warning", "Sign in first"); return; }
+    setConnectingStripe(true);
+    try {
+      const res = await fetch("/api/stripe/connect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id, email: user.email ?? "", username: user.username ?? user.id }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        toast("warning", data.error ?? "Stripe not configured yet");
+      }
+    } catch {
+      toast("warning", "Connection failed — try again");
+    } finally {
+      setConnectingStripe(false);
+    }
+  };
 
   const totalEarnings = 1820.50;
   const pendingBalance = 284.50;
@@ -161,30 +197,38 @@ export default function EarningsPage() {
                 ))}
               </div>
 
-              {/* Cashout options */}
+              {/* Stripe Connect */}
               <div className="card p-4">
-                <h3 className="text-sm font-semibold text-text-primary mb-3">Cash out options</h3>
-                <div className="space-y-2">
-                  {[
-                    { icon: <CreditCard size={16} />, label: "Bank transfer", subtitle: "2-3 business days", badge: "Recommended" },
-                    { icon: <ArrowUp size={16} />, label: "PayPal / Stripe", subtitle: "Same day", badge: null },
-                  ].map((opt) => (
-                    <button key={opt.label} onClick={handleCashOut}
-                      className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.04] border border-border hover:border-border-strong transition-all text-left">
-                      <div className="w-9 h-9 rounded-lg bg-white/[0.05] flex items-center justify-center text-text-secondary flex-shrink-0">
-                        {opt.icon}
+                <h3 className="text-sm font-semibold text-text-primary mb-3 flex items-center gap-2">
+                  <CreditCard size={14} className="text-accent-cyan" /> Payout account
+                </h3>
+                {stripeConnected ? (
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-accent-green/8 border border-accent-green/20">
+                    <CheckCircle2 size={18} className="text-accent-green flex-shrink-0" />
+                    <div>
+                      <div className="text-sm font-semibold text-text-primary">Stripe connected</div>
+                      <div className="text-xs text-text-muted">Bank transfers in 2–3 business days</div>
+                    </div>
+                    <Button variant="secondary" size="sm" className="ml-auto" onClick={handleCashOut} loading={cashingOut}>
+                      Cash out
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3 p-3 rounded-xl bg-accent-amber/8 border border-accent-amber/20">
+                      <AlertCircle size={16} className="text-accent-amber flex-shrink-0 mt-0.5" />
+                      <div className="text-xs text-text-secondary leading-relaxed">
+                        Connect Stripe to receive tips, membership payments, and license fees directly to your bank account.
                       </div>
-                      <div className="flex-1">
-                        <div className="text-sm font-medium text-text-primary flex items-center gap-2">
-                          {opt.label}
-                          {opt.badge && <span className="text-[10px] bg-accent-green/15 text-accent-green border border-accent-green/20 px-1.5 py-0.5 rounded-full font-semibold">{opt.badge}</span>}
-                        </div>
-                        <div className="text-xs text-text-muted">{opt.subtitle}</div>
-                      </div>
-                      <ArrowDown size={14} className="text-text-muted" />
-                    </button>
-                  ))}
-                </div>
+                    </div>
+                    <Button variant="gradient" size="md" className="w-full gap-2" onClick={handleConnectStripe} loading={connectingStripe}>
+                      <CreditCard size={14} /> Connect Stripe account
+                    </Button>
+                    <p className="text-[11px] text-text-muted text-center">
+                      Verse keeps 10% · You keep 90% · Payouts every 7 days
+                    </p>
+                  </div>
+                )}
               </div>
             </motion.div>
           )}
