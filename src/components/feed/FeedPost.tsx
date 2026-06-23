@@ -49,7 +49,6 @@ export function FeedPost({ post }: { post: Post }) {
   };
 
   const handleRepost = () => {
-    if (!reposted) toast("success", "Reposted to your audience");
     setReposted(v => !v);
     setRepostCount(n => reposted ? n - 1 : n + 1);
   };
