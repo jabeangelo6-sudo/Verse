@@ -81,9 +81,12 @@ export function BottomNav() {
   const [sheetMounted, setSheetMounted] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const [moreMounted, setMoreMounted] = useState(false);
+  const [fabHolding, setFabHolding] = useState(false);
 
   const photoRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLInputElement>(null);
+  const fabHoldTimer = useRef<ReturnType<typeof setTimeout>>();
+  const fabHoldFired = useRef(false);
 
   // Stable refs so swipe hooks always call the latest close functions
   const closeSheetRef = useRef<() => void>(() => {});
@@ -119,6 +122,25 @@ export function BottomNav() {
     requestAnimationFrame(() => requestAnimationFrame(() => setShowMore(true)));
   }
 
+  // FAB long-press → livestream
+  const handleFabPointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    fabHoldFired.current = false;
+    setFabHolding(true);
+    fabHoldTimer.current = setTimeout(() => {
+      fabHoldFired.current = true;
+      setFabHolding(false);
+      if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate(40);
+      router.push("/livestream");
+    }, 600);
+  };
+
+  const handleFabPointerUp = () => {
+    clearTimeout(fabHoldTimer.current);
+    setFabHolding(false);
+    if (!fabHoldFired.current) openSheet();
+  };
+
   useEffect(() => {
     document.body.style.overflow = (showSheet || showMore) ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -140,8 +162,23 @@ export function BottomNav() {
           {NAV_ITEMS.map((item) => {
             if (!item) {
               return (
-                <button key="fab" onClick={openSheet}
-                  className="relative -top-5 w-14 h-14 rounded-full bg-gradient-primary shadow-glow flex items-center justify-center flex-shrink-0 active:scale-95 transition-transform">
+                <button key="fab"
+                  onPointerDown={handleFabPointerDown}
+                  onPointerUp={handleFabPointerUp}
+                  onPointerCancel={() => { clearTimeout(fabHoldTimer.current); setFabHolding(false); }}
+                  className="relative -top-5 w-14 h-14 rounded-full bg-gradient-primary shadow-glow flex items-center justify-center flex-shrink-0 transition-transform active:scale-95 select-none">
+                  {/* Hold ring — grows during long-press */}
+                  <AnimatePresence>
+                    {fabHolding && (
+                      <motion.span
+                        initial={{ scale: 1, opacity: 0.6 }}
+                        animate={{ scale: 1.9, opacity: 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.6, ease: "easeOut" }}
+                        className="absolute inset-0 rounded-full bg-white pointer-events-none"
+                      />
+                    )}
+                  </AnimatePresence>
                   <motion.div animate={{ rotate: showSheet ? 45 : 0 }} transition={{ type: "spring", stiffness: 400, damping: 25 }}>
                     <Plus size={28} className="text-white" strokeWidth={2.5} />
                   </motion.div>
