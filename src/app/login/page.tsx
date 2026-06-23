@@ -3,15 +3,15 @@ import { useEffect } from "react";
 import { usePrivy } from "@privy-io/react-auth";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Zap, Users, Globe, Shield, Wallet } from "lucide-react";
+import { Zap, Users, Globe, Shield, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import config from "@/lib/config";
 
 const FEATURES = [
-  { icon: <Users size={18} />, title: "Portable audience", desc: "Your followers live on-chain. Take them anywhere, forever." },
-  { icon: <Wallet size={18} />, title: "Earn instantly", desc: "Tips, subscriptions, and token sales — you keep 97.5%." },
-  { icon: <Globe size={18} />, title: "Censorship-proof", desc: "Content stored on IPFS + Arweave. No one can take it down." },
-  { icon: <Shield size={18} />, title: "No KYC required", desc: "Pseudonymous by default. Your identity, your choice." },
+  { icon: <Users size={18} />, title: "Your audience forever", desc: "Followers belong to you, not the platform. Take them anywhere." },
+  { icon: <DollarSign size={18} />, title: "Earn instantly", desc: "Tips, memberships, and content licenses — you keep 97.5%." },
+  { icon: <Globe size={18} />, title: "Always available", desc: "Your profile, your rules. No algorithm can bury your posts." },
+  { icon: <Shield size={18} />, title: "No setup required", desc: "Sign up in seconds. No complexity — just create." },
 ];
 
 export default function LoginPage() {
@@ -78,7 +78,7 @@ export default function LoginPage() {
             Get started — it&apos;s free
           </Button>
           <p className="text-xs text-text-muted">
-            Email or social login · Wallet created automatically · No KYC
+            Email or social login · Ready in seconds · No credit card needed
           </p>
         </motion.div>
       </div>
