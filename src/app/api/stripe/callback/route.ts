@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
   const userId = searchParams.get("userId");
 
   if (!accountId || !userId) {
-    return NextResponse.redirect(`${APP_URL}/wallet?stripe=error`);
+    return NextResponse.redirect(`${APP_URL}/earnings?stripe=error`);
   }
 
   try {
@@ -24,5 +24,5 @@ export async function GET(req: NextRequest) {
     // Column may not exist yet — that's OK, still redirect to success
   }
 
-  return NextResponse.redirect(`${APP_URL}/wallet?stripe=success`);
+  return NextResponse.redirect(`${APP_URL}/earnings?stripe=success`);
 }
