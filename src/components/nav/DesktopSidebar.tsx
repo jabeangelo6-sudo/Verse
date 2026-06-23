@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Compass, PlusSquare, Bell, TrendingUp, Settings, Zap, LogOut, Crown, FileText, Brain, Shield, BarChart3, Link2, Building2, Database } from "lucide-react";
+import { Home, Compass, PlusSquare, Bell, TrendingUp, Settings, Zap, LogOut, Crown, FileText, Brain, Shield, Link2, Building2, Database } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/ui/Avatar";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -21,7 +21,6 @@ const EARN_NAV = [
   { href: "/licensing", icon: FileText, label: "Licensing" },
   { href: "/brain-trust", icon: Brain, label: "Brain Trust" },
   { href: "/whistle", icon: Shield, label: "Verified Leaks" },
-  { href: "/derivatives", icon: BarChart3, label: "Content Futures" },
 ];
 
 export function DesktopSidebar() {
