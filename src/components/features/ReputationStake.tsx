@@ -13,7 +13,6 @@ type Props = {
   noVotes: number;
   deadline: Date;
   creatorName: string;
-  tokenSymbol: string;
 };
 
 export function ReputationStake({ topic, stakeAmount, yesVotes, noVotes, deadline, creatorName }: Props) {
