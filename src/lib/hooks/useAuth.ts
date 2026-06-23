@@ -8,13 +8,11 @@ export type AppUser = {
   displayName: string;
   avatar: string;
   bio: string;
-  walletAddress: string;
+  email?: string;
   verified: boolean;
   followerCount: number;
   followingCount: number;
   earnings: number;
-  tokenSymbol: string;
-  tokenPrice: number;
 };
 
 export function useAuth() {
