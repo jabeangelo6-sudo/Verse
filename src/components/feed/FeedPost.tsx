@@ -1,9 +1,9 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, MessageCircle, Repeat2, Zap, MoreHorizontal, Lock, BadgeCheck, TrendingUp, Users2, Share2, Copy, Check, ExternalLink } from "lucide-react";
+import { Heart, MessageCircle, Repeat2, Zap, MoreHorizontal, Lock, BadgeCheck, TrendingUp, Users2, Share2, Copy, Check, ExternalLink, Flag, EyeOff, UserX, Link as LinkIcon } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -19,6 +19,7 @@ import { useAuth } from "@/lib/hooks/useAuth";
 
 export function FeedPost({ post }: { post: Post }) {
   const { user } = useAuth();
+  const router = useRouter();
   const [liked, setLiked] = useState(post.isLiked);
   const [likeCount, setLikeCount] = useState(post.likes);
   const [reposted, setReposted] = useState(post.isReposted);
@@ -28,7 +29,12 @@ export function FeedPost({ post }: { post: Post }) {
   const [tipping, setTipping] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const { toast } = useToast();
+
+  const postDetailUrl = `/posts/${post.id}`;
+  const openPost = () => router.push(postDetailUrl);
 
   const handleLike = async () => {
     const wasLiked = liked;
@@ -86,6 +92,8 @@ export function FeedPost({ post }: { post: Post }) {
     setShowShare(false);
   };
 
+  if (hidden) return null;
+
   return (
     <motion.article initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="card p-4 group">
 
@@ -130,9 +138,47 @@ export function FeedPost({ post }: { post: Post }) {
         <div className="flex items-center gap-1.5">
           {post.isExclusive && <Badge variant="amber" className="gap-1"><Lock size={9} /> Members</Badge>}
           <HumanityBadge score={post.humanityScore} isVerified={post.isHumanVerified} />
-          <button className="w-7 h-7 rounded-lg hover:bg-white/[0.05] flex items-center justify-center text-text-muted opacity-0 group-hover:opacity-100 transition-all">
-            <MoreHorizontal size={15} />
-          </button>
+          <div className="relative">
+            <button
+              onClick={e => { e.stopPropagation(); setShowMenu(v => !v); }}
+              className="w-7 h-7 rounded-lg hover:bg-white/[0.05] flex items-center justify-center text-text-muted transition-all">
+              <MoreHorizontal size={15} />
+            </button>
+            <AnimatePresence>
+              {showMenu && (
+                <>
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-[60]" onClick={() => setShowMenu(false)} />
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.92, y: -4 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.92, y: -4 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    className="absolute right-0 top-8 z-[61] w-52 glass border border-border rounded-2xl py-1.5 shadow-card-hover overflow-hidden">
+                    <button onClick={() => { handleCopyLink(); setShowMenu(false); }}
+                      className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-text-secondary hover:text-text-primary hover:bg-white/[0.05] transition-colors">
+                      <LinkIcon size={13} className="text-text-muted" /> Copy link
+                    </button>
+                    <button onClick={() => { openPost(); setShowMenu(false); }}
+                      className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-text-secondary hover:text-text-primary hover:bg-white/[0.05] transition-colors">
+                      <ExternalLink size={13} className="text-text-muted" /> Open post
+                    </button>
+                    <div className="h-px bg-border mx-3 my-1" />
+                    <button onClick={() => { setHidden(true); setShowMenu(false); toast("success", "Post hidden"); }}
+                      className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-text-secondary hover:text-text-primary hover:bg-white/[0.05] transition-colors">
+                      <EyeOff size={13} className="text-text-muted" /> Not interested
+                    </button>
+                    <button onClick={() => { setShowMenu(false); toast("success", "Reported", "Our team will review this"); }}
+                      className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-accent-rose hover:bg-accent-rose/8 transition-colors">
+                      <Flag size={13} /> Report post
+                    </button>
+                    <button onClick={() => { setShowMenu(false); toast("success", `Blocked @${post.creator.username}`); }}
+                      className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-accent-rose hover:bg-accent-rose/8 transition-colors">
+                      <UserX size={13} /> Block @{post.creator.username}
+                    </button>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
 
@@ -143,37 +189,40 @@ export function FeedPost({ post }: { post: Post }) {
         </div>
       )}
 
-      {/* Content */}
-      {post.isExclusive ? (
-        <div className="relative mb-3">
-          <p className="text-text-secondary text-sm leading-relaxed blur-sm select-none">{post.content}</p>
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-bg-base/60 backdrop-blur-sm rounded-xl gap-3 border border-accent-amber/20">
-            <Lock size={20} className="text-accent-amber" />
-            <p className="text-sm font-semibold text-text-primary text-center px-4">
-              This is <span className="text-accent-amber font-bold">members-only</span> content
-            </p>
-            <Button variant="gradient" size="sm" className="gap-1.5"><TrendingUp size={13} /> Become a member</Button>
+      {/* Content — clicking anywhere on body opens post detail */}
+      <div onClick={openPost} className="cursor-pointer">
+        {post.isExclusive ? (
+          <div className="relative mb-3">
+            <p className="text-text-secondary text-sm leading-relaxed blur-sm select-none">{post.content}</p>
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-bg-base/60 backdrop-blur-sm rounded-xl gap-3 border border-accent-amber/20"
+              onClick={e => e.stopPropagation()}>
+              <Lock size={20} className="text-accent-amber" />
+              <p className="text-sm font-semibold text-text-primary text-center px-4">
+                This is <span className="text-accent-amber font-bold">members-only</span> content
+              </p>
+              <Button variant="gradient" size="sm" className="gap-1.5"><TrendingUp size={13} /> Become a member</Button>
+            </div>
           </div>
-        </div>
-      ) : (
-        <p className="text-text-primary text-[15px] leading-relaxed mb-3">{post.content}</p>
-      )}
+        ) : (
+          <p className="text-text-primary text-[15px] leading-relaxed mb-3">{post.content}</p>
+        )}
 
-      {/* Media */}
-      {post.media && !post.isExclusive && (
-        <div className="rounded-2xl overflow-hidden mb-3 bg-bg-elevated">
-          <img src={post.media} alt="Post media" className="w-full object-cover max-h-[500px]" loading="lazy" />
-        </div>
-      )}
+        {/* Media */}
+        {post.media && !post.isExclusive && (
+          <div className="rounded-2xl overflow-hidden mb-3 bg-bg-elevated">
+            <img src={post.media} alt="Post media" className="w-full object-cover max-h-[500px]" loading="lazy" />
+          </div>
+        )}
 
-      {/* Tags */}
-      {post.tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mb-3">
-          {post.tags.map(tag => (
-            <span key={tag} className="text-xs text-accent-cyan hover:text-accent-cyan/80 cursor-pointer transition-colors">#{tag}</span>
-          ))}
-        </div>
-      )}
+        {/* Tags */}
+        {post.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-3" onClick={e => e.stopPropagation()}>
+            {post.tags.map(tag => (
+              <span key={tag} className="text-xs text-accent-cyan hover:text-accent-cyan/80 cursor-pointer transition-colors">#{tag}</span>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Reputation stake */}
       {post.hasStake && post.stakeTopic && post.stakeDeadline && (
