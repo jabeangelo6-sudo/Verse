@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Fingerprint, Bot, Info } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Popover } from "@/components/ui/Popover";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -42,28 +42,13 @@ export function HumanityBadge({ score, isVerified }: Props) {
         </button>
       </span>
 
-      <AnimatePresence>
-        {open && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[60]"
-              onClick={() => setOpen(false)} />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.92, y: 4 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.92, y: 4 }}
-              transition={{ type: "spring", stiffness: 500, damping: 30 }}
-              className="absolute left-0 top-full mt-1.5 z-[61] w-56 glass border border-border rounded-xl p-3 shadow-card-hover"
-              onClick={e => e.stopPropagation()}>
-              <p className={cn("text-[11px] font-bold mb-1", isHuman ? "text-accent-green" : "text-accent-amber")}>
-                {label}
-              </p>
-              <p className="text-[11px] text-text-muted leading-relaxed">{detail}</p>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <Popover open={open} onClose={() => setOpen(false)} anchor="top-left"
+        className="w-56 glass border border-border rounded-xl p-3 shadow-card-hover">
+        <p className={cn("text-[11px] font-bold mb-1", isHuman ? "text-accent-green" : "text-accent-amber")}>
+          {label}
+        </p>
+        <p className="text-[11px] text-text-muted leading-relaxed">{detail}</p>
+      </Popover>
     </span>
   );
 }
