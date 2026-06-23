@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { User, Bell, Shield, DollarSign, LogOut, ChevronRight, Check, Trash2, Moon, Globe, Lock, Mail, Phone, Plus, X } from "lucide-react";
+import { User, Bell, Shield, DollarSign, LogOut, ChevronRight, Check, Trash2, Moon, Globe, Lock, Mail, Phone, Plus, X, Database } from "lucide-react";
+import Link from "next/link";
 import { TopBar } from "@/components/nav/TopBar";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
@@ -223,6 +224,20 @@ export default function SettingsPage() {
           <Row icon={<DollarSign size={15} />} label="Show earnings publicly" toggle={privacy.showEarnings} onToggle={v => setPrivacy(p => ({ ...p, showEarnings: v }))} />
           <Row icon={<User size={15} />} label="Allow direct messages" toggle={privacy.allowDMs} onToggle={v => setPrivacy(p => ({ ...p, allowDMs: v }))} />
           <Row icon={<Globe size={15} />} label="Allow search indexing" toggle={privacy.indexProfile} onToggle={v => setPrivacy(p => ({ ...p, indexProfile: v }))} />
+        </Section>
+
+        {/* Data & Portability */}
+        <Section title="Data & Portability">
+          <Link href="/data" className="flex items-center gap-3 px-4 py-3.5 hover:bg-white/[0.03] transition-colors cursor-pointer">
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 bg-accent-green/10">
+              <Database size={15} className="text-accent-green" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium text-text-primary">Download your data</div>
+              <div className="text-xs text-text-muted mt-0.5">Posts, followers (with emails), earnings — yours to keep</div>
+            </div>
+            <ChevronRight size={15} className="text-text-muted flex-shrink-0" />
+          </Link>
         </Section>
 
         {/* Account */}
