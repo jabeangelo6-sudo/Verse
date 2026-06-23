@@ -13,10 +13,21 @@ const LanguageDetector = dynamic(
   { ssr: false, loading: () => null }
 );
 
+const ServiceWorkerRegister = dynamic(
+  () => import("@/components/providers/ServiceWorkerRegister").then(m => m.ServiceWorkerRegister),
+  { ssr: false, loading: () => null }
+);
+
 export const metadata: Metadata = {
   title: `${config.name} — ${config.tagline}`,
   description: config.description,
   keywords: ["creator economy", "web3", "decentralized", "censorship resistant"],
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: config.name,
+  },
   openGraph: {
     title: `${config.name} — ${config.tagline}`,
     description: config.description,
@@ -53,8 +64,12 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
+      <head>
+        <link rel="apple-touch-icon" href="/api/icon?size=180" />
+      </head>
       <body className="antialiased">
         <LanguageDetector />
+        <ServiceWorkerRegister />
         <AppProviders>{children}</AppProviders>
       </body>
     </html>
