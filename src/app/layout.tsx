@@ -21,7 +21,7 @@ const ServiceWorkerRegister = dynamic(
 export const metadata: Metadata = {
   title: `${config.name} — ${config.tagline}`,
   description: config.description,
-  keywords: ["creator economy", "web3", "decentralized", "censorship resistant"],
+  keywords: ["creator economy", "creator platform", "monetize content", "fan subscriptions"],
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
