@@ -194,7 +194,6 @@ export function FeedPost({ post }: { post: Post }) {
           noVotes={post.stakeNo ?? 0}
           deadline={post.stakeDeadline}
           creatorName={post.creator.displayName}
-          tokenSymbol={post.creator.tokenSymbol}
         />
       )}
 
