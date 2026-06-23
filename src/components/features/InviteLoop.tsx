@@ -23,7 +23,7 @@ export function InviteLoop({ username, inviteCount = 0 }: { username: string; in
   };
 
   const shareTwitter = () => {
-    const text = `I'm building my audience on ${config.name} — the censorship-proof creator platform where YOU own your followers forever.\n\nNo algorithm. No middleman. Just you and your fans.\n\nJoin with my link 👇`;
+    const text = `I'm building my audience on ${config.name} — the creator platform where YOU own your followers forever.\n\nNo algorithm. No middleman. Just you and your fans.\n\nJoin with my link 👇`;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(inviteUrl)}`, "_blank");
   };
 
