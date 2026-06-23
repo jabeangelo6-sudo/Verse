@@ -26,64 +26,99 @@ const MORE_ITEMS = [
   { href: "/data", icon: Shield, label: "My Data", color: "text-accent-green", bg: "bg-accent-green/15 border-accent-green/20" },
 ];
 
-const EASE = "transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)";
+const EASE = "transform 0.32s cubic-bezier(0.32, 0.72, 0, 1)";
 
-function useSwipeDismiss(onDismiss: () => void) {
+function useSwipeDismiss(onDismissRef: React.MutableRefObject<() => void>) {
   const startY = useRef(0);
   const dragging = useRef(false);
   const sheetRef = useRef<HTMLDivElement>(null);
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     startY.current = e.clientY;
-    dragging.current = true;
-    e.currentTarget.setPointerCapture(e.pointerId);
-    if (sheetRef.current) sheetRef.current.style.transition = "none";
+    dragging.current = false;
+    // Do NOT capture here — wait for actual drag so taps on child links work normally
   };
 
   const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!dragging.current || !sheetRef.current) return;
+    if (!sheetRef.current) return;
     const dy = e.clientY - startY.current;
+    if (!dragging.current) {
+      if (dy < 6) return; // Below threshold — still a tap
+      dragging.current = true;
+      e.currentTarget.setPointerCapture(e.pointerId);
+      sheetRef.current.style.transition = "none";
+    }
     if (dy > 0) sheetRef.current.style.transform = `translateY(${dy}px)`;
   };
 
   const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!dragging.current || !sheetRef.current) return;
+    if (!sheetRef.current) return;
+    if (!dragging.current) return; // Was a tap — let click events fire on child elements
     dragging.current = false;
     const dy = e.clientY - startY.current;
     sheetRef.current.style.transition = EASE;
     if (dy > 80) {
-      sheetRef.current.style.transform = "translateY(100%)";
+      sheetRef.current.style.transform = "translateY(120%)";
       setTimeout(() => {
-        onDismiss();
+        onDismissRef.current();
         if (sheetRef.current) sheetRef.current.style.transform = "";
-      }, 300);
+      }, 320);
     } else {
-      sheetRef.current.style.transform = "translateY(0)";
-      setTimeout(() => { if (sheetRef.current) sheetRef.current.style.transform = ""; }, 300);
+      // Clear inline style — React's translateY(0) (open state) takes over with transition
+      sheetRef.current.style.transform = "";
     }
   };
 
-  const handleProps = {
-    onPointerDown,
-    onPointerMove,
-    onPointerUp,
-  };
-
-  return { sheetRef, handleProps };
+  return { sheetRef, handleProps: { onPointerDown, onPointerMove, onPointerUp } };
 }
 
 export function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
+
+  // showX drives the CSS transform; xMounted controls whether the element is in the DOM
   const [showSheet, setShowSheet] = useState(false);
+  const [sheetMounted, setSheetMounted] = useState(false);
   const [showMore, setShowMore] = useState(false);
+  const [moreMounted, setMoreMounted] = useState(false);
+
   const photoRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLInputElement>(null);
 
-  const sheetSwipe = useSwipeDismiss(() => setShowSheet(false));
-  const moreSwipe  = useSwipeDismiss(() => setShowMore(false));
+  // Stable refs so swipe hooks always call the latest close functions
+  const closeSheetRef = useRef<() => void>(() => {});
+  const closeMoreRef = useRef<() => void>(() => {});
 
-  // Lock body scroll while any sheet is open so the feed doesn't move behind it
+  const sheetSwipe = useSwipeDismiss(closeSheetRef);
+  const moreSwipe  = useSwipeDismiss(closeMoreRef);
+
+  function closeSheet() {
+    setShowSheet(false);
+    setTimeout(() => setSheetMounted(false), 360);
+  }
+  function closeMore() {
+    setShowMore(false);
+    setTimeout(() => setMoreMounted(false), 360);
+  }
+  closeSheetRef.current = closeSheet;
+  closeMoreRef.current  = closeMore;
+
+  function openSheet() {
+    // Immediately unmount More if it was open
+    setShowMore(false);
+    setMoreMounted(false);
+    setSheetMounted(true);
+    // Double rAF: first frame mounts div at translateY(100%), second animates it open
+    requestAnimationFrame(() => requestAnimationFrame(() => setShowSheet(true)));
+  }
+
+  function openMore() {
+    setShowSheet(false);
+    setSheetMounted(false);
+    setMoreMounted(true);
+    requestAnimationFrame(() => requestAnimationFrame(() => setShowMore(true)));
+  }
+
   useEffect(() => {
     document.body.style.overflow = (showSheet || showMore) ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -94,7 +129,7 @@ export function BottomNav() {
     if (!file) return;
     const url = URL.createObjectURL(file);
     mediaStore.set({ url, type, name: file.name, file });
-    setShowSheet(false);
+    closeSheet();
     router.push("/create");
   };
 
@@ -105,7 +140,7 @@ export function BottomNav() {
           {NAV_ITEMS.map((item) => {
             if (!item) {
               return (
-                <button key="fab" onClick={() => { setShowSheet(true); setShowMore(false); }}
+                <button key="fab" onClick={openSheet}
                   className="relative -top-5 w-14 h-14 rounded-full bg-gradient-primary shadow-glow flex items-center justify-center flex-shrink-0 active:scale-95 transition-transform">
                   <motion.div animate={{ rotate: showSheet ? 45 : 0 }} transition={{ type: "spring", stiffness: 400, damping: 25 }}>
                     <Plus size={28} className="text-white" strokeWidth={2.5} />
@@ -115,7 +150,7 @@ export function BottomNav() {
             }
             if (item.href === null) {
               return (
-                <button key="more" onClick={() => { setShowMore(true); setShowSheet(false); }}
+                <button key="more" onClick={openMore}
                   className="relative flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors">
                   <span className={cn("transition-colors duration-200", showMore ? "text-primary-light" : "text-text-muted")}>
                     <item.icon size={22} strokeWidth={showMore ? 2.5 : 1.8} />
@@ -147,88 +182,88 @@ export function BottomNav() {
         </div>
       </nav>
 
-      {/* Shared backdrop */}
+      {/* Shared backdrop — z-[49] so sheets at z-50 always sit above it */}
       <AnimatePresence>
         {(showMore || showSheet) && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 md:hidden"
-            onClick={() => { setShowMore(false); setShowSheet(false); }} />
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[49] md:hidden"
+            onClick={() => { closeMore(); closeSheet(); }} />
         )}
       </AnimatePresence>
 
-      {/* More sheet */}
-      <div
-        ref={moreSwipe.sheetRef}
-        className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass border-t border-border rounded-t-3xl px-5 pb-10"
-        style={{
-          transform: showMore ? "translateY(0)" : "translateY(100%)",
-          transition: EASE,
-          pointerEvents: showMore ? "auto" : "none",
-          touchAction: "none",
-        }}
-        {...moreSwipe.handleProps}>
-        {/* Visual handle only */}
-        <div className="flex justify-center pt-4 pb-4">
-          <div className="w-10 h-1 bg-white/20 rounded-full" />
+      {/* More sheet — only mounted after first open, never shares DOM with Create sheet */}
+      {moreMounted && (
+        <div
+          ref={moreSwipe.sheetRef}
+          className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass border-t border-border rounded-t-3xl px-5 pb-10"
+          style={{
+            transform: showMore ? "translateY(0)" : "translateY(100%)",
+            transition: EASE,
+            touchAction: "none",
+          }}
+          {...moreSwipe.handleProps}>
+          <div className="flex justify-center pt-4 pb-4">
+            <div className="w-10 h-1 bg-white/20 rounded-full" />
+          </div>
+          <p className="text-xs font-bold text-text-muted uppercase tracking-widest text-center mb-5">Earn &amp; Build</p>
+          <div className="grid grid-cols-4 gap-3 mb-5">
+            {MORE_ITEMS.map((item) => {
+              const active = pathname === item.href;
+              return (
+                <Link key={item.href} href={item.href} onClick={closeMore}
+                  className="flex flex-col items-center gap-2">
+                  <div className={cn("w-14 h-14 rounded-2xl border flex items-center justify-center transition-all", item.bg, active && "ring-2 ring-primary/40")}>
+                    <item.icon size={22} className={item.color} />
+                  </div>
+                  <span className="text-[10px] font-medium text-text-muted text-center leading-tight">{item.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+          <button onClick={closeMore}
+            className="w-full py-3.5 rounded-2xl bg-white/[0.04] text-text-muted text-sm font-semibold mb-2">
+            Close
+          </button>
         </div>
-        <p className="text-xs font-bold text-text-muted uppercase tracking-widest text-center mb-5">Earn &amp; Build</p>
-        <div className="grid grid-cols-4 gap-3 mb-5">
-          {MORE_ITEMS.map((item) => {
-            const active = pathname === item.href;
-            return (
-              <Link key={item.href} href={item.href} onClick={() => setShowMore(false)}
-                className="flex flex-col items-center gap-2">
-                <div className={cn("w-14 h-14 rounded-2xl border flex items-center justify-center transition-all", item.bg, active && "ring-2 ring-primary/40")}>
-                  <item.icon size={22} className={item.color} />
-                </div>
-                <span className="text-[10px] font-medium text-text-muted text-center leading-tight">{item.label}</span>
-              </Link>
-            );
-          })}
-        </div>
-        <button onClick={() => setShowMore(false)}
-          className="w-full py-3.5 rounded-2xl bg-white/[0.04] text-text-muted text-sm font-semibold mb-2">
-          Close
-        </button>
-      </div>
+      )}
 
       {/* Hidden file inputs */}
       <input ref={photoRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleMedia(e, "image")} />
       <input ref={videoRef} type="file" accept="video/*" className="hidden" onChange={(e) => handleMedia(e, "video")} />
 
-      {/* Create sheet */}
-      <div
-        ref={sheetSwipe.sheetRef}
-        className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass border-t border-border rounded-t-3xl px-6 pb-10"
-        style={{
-          transform: showSheet ? "translateY(0)" : "translateY(100%)",
-          transition: EASE,
-          pointerEvents: showSheet ? "auto" : "none",
-          touchAction: "none",
-        }}
-        {...sheetSwipe.handleProps}>
-        {/* Visual handle only */}
-        <div className="flex justify-center pt-4 pb-4">
-          <div className="w-10 h-1 bg-white/20 rounded-full" />
+      {/* Create sheet — only mounted after first open, never shares DOM with More sheet */}
+      {sheetMounted && (
+        <div
+          ref={sheetSwipe.sheetRef}
+          className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass border-t border-border rounded-t-3xl px-6 pb-10"
+          style={{
+            transform: showSheet ? "translateY(0)" : "translateY(100%)",
+            transition: EASE,
+            touchAction: "none",
+          }}
+          {...sheetSwipe.handleProps}>
+          <div className="flex justify-center pt-4 pb-4">
+            <div className="w-10 h-1 bg-white/20 rounded-full" />
+          </div>
+          <p className="text-xs font-semibold text-text-muted uppercase tracking-widest text-center mb-6">Create</p>
+          <div className="grid grid-cols-3 gap-5 mb-6">
+            {[
+              { icon: <PenLine size={26} className="text-primary-light" />, label: "Write", bg: "bg-primary/15 border border-primary/20", action: () => { closeSheet(); router.push("/create"); } },
+              { icon: <Camera size={26} className="text-accent-amber" />, label: "Photo", bg: "bg-accent-amber/15 border border-accent-amber/20", action: () => photoRef.current?.click() },
+              { icon: <Video size={26} className="text-accent-cyan" />, label: "Video", bg: "bg-accent-cyan/15 border border-accent-cyan/20", action: () => videoRef.current?.click() },
+            ].map((opt) => (
+              <motion.button key={opt.label} whileTap={{ scale: 0.92 }} onClick={opt.action} className="flex flex-col items-center gap-3">
+                <div className={cn("w-[72px] h-[72px] rounded-2xl flex items-center justify-center", opt.bg)}>{opt.icon}</div>
+                <span className="text-sm font-semibold text-text-secondary">{opt.label}</span>
+              </motion.button>
+            ))}
+          </div>
+          <button onClick={closeSheet}
+            className="w-full py-3.5 rounded-2xl bg-white/[0.04] text-text-muted text-sm font-semibold hover:bg-white/[0.07] transition-colors mb-2">
+            Cancel
+          </button>
         </div>
-        <p className="text-xs font-semibold text-text-muted uppercase tracking-widest text-center mb-6">Create</p>
-        <div className="grid grid-cols-3 gap-5 mb-6">
-          {[
-            { icon: <PenLine size={26} className="text-primary-light" />, label: "Write", bg: "bg-primary/15 border border-primary/20", action: () => { setShowSheet(false); router.push("/create"); } },
-            { icon: <Camera size={26} className="text-accent-amber" />, label: "Photo", bg: "bg-accent-amber/15 border border-accent-amber/20", action: () => photoRef.current?.click() },
-            { icon: <Video size={26} className="text-accent-cyan" />, label: "Video", bg: "bg-accent-cyan/15 border border-accent-cyan/20", action: () => videoRef.current?.click() },
-          ].map((opt) => (
-            <motion.button key={opt.label} whileTap={{ scale: 0.92 }} onClick={opt.action} className="flex flex-col items-center gap-3">
-              <div className={cn("w-[72px] h-[72px] rounded-2xl flex items-center justify-center", opt.bg)}>{opt.icon}</div>
-              <span className="text-sm font-semibold text-text-secondary">{opt.label}</span>
-            </motion.button>
-          ))}
-        </div>
-        <button onClick={() => setShowSheet(false)}
-          className="w-full py-3.5 rounded-2xl bg-white/[0.04] text-text-muted text-sm font-semibold hover:bg-white/[0.07] transition-colors mb-2">
-          Cancel
-        </button>
-      </div>
+      )}
     </>
   );
 }
