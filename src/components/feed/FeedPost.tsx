@@ -268,6 +268,8 @@ export function FeedPost({ post }: { post: Post }) {
             </button>
             <AnimatePresence>
               {showShare && (
+                <>
+                <div className="fixed inset-0 z-[9]" onClick={() => setShowShare(false)} />
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9, y: 8 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 8 }}
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
@@ -287,6 +289,7 @@ export function FeedPost({ post }: { post: Post }) {
                     {shareCopied ? "Copied!" : "Copy link"}
                   </button>
                 </motion.div>
+                </>
               )}
             </AnimatePresence>
           </div>
@@ -301,6 +304,8 @@ export function FeedPost({ post }: { post: Post }) {
           </motion.button>
           <AnimatePresence>
             {showTip && (
+              <>
+              <div className="fixed inset-0 z-[9]" onClick={() => setShowTip(false)} />
               <motion.div
                 initial={{ opacity: 0, scale: 0.9, y: 8 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 8 }}
                 transition={{ type: "spring", stiffness: 400, damping: 30 }}
@@ -316,6 +321,7 @@ export function FeedPost({ post }: { post: Post }) {
                   ))}
                 </div>
               </motion.div>
+              </>
             )}
           </AnimatePresence>
         </div>
