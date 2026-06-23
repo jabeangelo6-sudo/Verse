@@ -24,6 +24,7 @@ const MORE_ITEMS = [
   { href: "/derivatives", icon: BarChart3, label: "Content Futures", color: "text-accent-amber", bg: "bg-accent-amber/15 border-accent-amber/20" },
   { href: "/integrations", icon: Link2, label: "Integrations", color: "text-text-secondary", bg: "bg-white/[0.06] border-white/[0.08]" },
   { href: "/agency", icon: Building2, label: "Agency", color: "text-accent-cyan", bg: "bg-accent-cyan/15 border-accent-cyan/20" },
+  { href: "/data", icon: Shield, label: "My Data", color: "text-accent-green", bg: "bg-accent-green/15 border-accent-green/20" },
 ];
 
 const EASE = "transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)";
