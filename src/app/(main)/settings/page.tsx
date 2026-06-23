@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { User, Bell, Shield, DollarSign, LogOut, ChevronRight, Check, Trash2, Moon, Globe, Lock, Mail, Phone, Plus, X, Database } from "lucide-react";
+import { User, Bell, Shield, DollarSign, LogOut, ChevronRight, Check, Trash2, Moon, Globe, Lock, Mail, Phone, Plus, X, Database, BadgeCheck } from "lucide-react";
 import Link from "next/link";
 import { TopBar } from "@/components/nav/TopBar";
 import { Avatar } from "@/components/ui/Avatar";
@@ -235,6 +235,20 @@ export default function SettingsPage() {
             <div className="flex-1 min-w-0">
               <div className="text-sm font-medium text-text-primary">Download your data</div>
               <div className="text-xs text-text-muted mt-0.5">Posts, followers (with emails), earnings — yours to keep</div>
+            </div>
+            <ChevronRight size={15} className="text-text-muted flex-shrink-0" />
+          </Link>
+        </Section>
+
+        {/* Verification */}
+        <Section title="Verification">
+          <Link href="/verify" className="flex items-center gap-3 px-4 py-3.5 hover:bg-white/[0.03] transition-colors cursor-pointer">
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 bg-primary/10">
+              <BadgeCheck size={15} className="text-primary-light" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium text-text-primary">Apply for verification</div>
+              <div className="text-xs text-text-muted mt-0.5">100K followers · or brand with legal docs</div>
             </div>
             <ChevronRight size={15} className="text-text-muted flex-shrink-0" />
           </Link>
