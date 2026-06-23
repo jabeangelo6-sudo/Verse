@@ -124,7 +124,9 @@ export function FeedPost({ post }: { post: Post }) {
                 </span>
               )}
             </div>
-            <div className="text-xs text-text-muted">@{post.creator.username} · {timeAgo(post.createdAt)}</div>
+            <div className="text-xs text-text-muted">
+              @{post.creator.username} · <Link href={`/posts/${post.id}`} className="hover:text-text-secondary transition-colors">{timeAgo(post.createdAt)}</Link>
+            </div>
           </div>
         </Link>
         <div className="flex items-center gap-1.5">
