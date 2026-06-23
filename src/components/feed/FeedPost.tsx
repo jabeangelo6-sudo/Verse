@@ -129,7 +129,7 @@ export function FeedPost({ post }: { post: Post }) {
         </Link>
         <div className="flex items-center gap-1.5">
           {post.isExclusive && <Badge variant="amber" className="gap-1"><Lock size={9} /> Members</Badge>}
-          <HumanityBadge score={post.humanityScore} isVerified={post.isHumanVerified} compact />
+          <HumanityBadge score={post.humanityScore} isVerified={post.isHumanVerified} />
           <button className="w-7 h-7 rounded-lg hover:bg-white/[0.05] flex items-center justify-center text-text-muted opacity-0 group-hover:opacity-100 transition-all">
             <MoreHorizontal size={15} />
           </button>
@@ -174,11 +174,6 @@ export function FeedPost({ post }: { post: Post }) {
           ))}
         </div>
       )}
-
-      {/* Humanity badge (expanded) + Voice */}
-      <div className="flex items-center gap-2 mb-3 flex-wrap">
-        <HumanityBadge score={post.humanityScore} isVerified={post.isHumanVerified} />
-      </div>
 
       {/* Reputation stake */}
       {post.hasStake && post.stakeTopic && post.stakeDeadline && (
