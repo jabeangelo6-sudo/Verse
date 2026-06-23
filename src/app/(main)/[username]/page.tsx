@@ -5,6 +5,7 @@ import { ArrowLeft, BadgeCheck, Share2, MoreHorizontal, Grid3x3, FileText, Lock,
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { Popover } from "@/components/ui/Popover";
 import { FeedPost } from "@/components/feed/FeedPost";
 import { EarlyBelieverBadge } from "@/components/features/EarlyBelieverBadge";
 import { ExpertBadge } from "@/components/features/ExpertBadge";
@@ -73,25 +74,17 @@ export default function CreatorProfilePage({ params }: { params: { username: str
             <button onClick={() => setShowShare(v => !v)} className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-white/[0.05] text-text-secondary">
               <Share2 size={18} />
             </button>
-            <AnimatePresence>
-              {showShare && (
-                <motion.div initial={{ opacity: 0, scale: 0.9, y: 8 }} animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.9, y: 8 }}
-                  className="absolute top-11 right-0 glass border border-border rounded-2xl p-3 shadow-card-hover z-10 min-w-[180px] space-y-1">
-                  <button onClick={handleShareTwitter} className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-white/[0.06] text-xs text-text-secondary hover:text-text-primary transition-colors">
-                    <span className="font-black text-[11px]">𝕏</span> Share on X
-                  </button>
-                  <button onClick={handleCopyLink} className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-white/[0.06] text-xs text-text-secondary hover:text-text-primary transition-colors">
-                    {shareCopied ? <Check size={13} className="text-accent-green" /> : <Copy size={13} />}
-                    {shareCopied ? "Copied!" : "Copy link"}
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <Popover open={showShare} onClose={() => setShowShare(false)}
+              anchor="top-right" className="glass border border-border rounded-2xl p-3 shadow-card-hover min-w-[180px] space-y-1">
+              <button onClick={handleShareTwitter} className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-white/[0.06] text-xs text-text-secondary hover:text-text-primary transition-colors">
+                <span className="font-black text-[11px]">𝕏</span> Share on X
+              </button>
+              <button onClick={handleCopyLink} className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-white/[0.06] text-xs text-text-secondary hover:text-text-primary transition-colors">
+                {shareCopied ? <Check size={13} className="text-accent-green" /> : <Copy size={13} />}
+                {shareCopied ? "Copied!" : "Copy link"}
+              </button>
+            </Popover>
           </div>
-          <button className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-white/[0.05] text-text-secondary">
-            <MoreHorizontal size={18} />
-          </button>
         </div>
       </header>
 
@@ -109,26 +102,18 @@ export default function CreatorProfilePage({ params }: { params: { username: str
               <Button variant="secondary" size="sm" onClick={() => setShowTip(v => !v)} className="gap-1.5">
                 <Zap size={13} className="text-accent-amber fill-accent-amber" /> Tip
               </Button>
-              <AnimatePresence>
-                {showTip && (
-                  <motion.div initial={{ opacity: 0, scale: 0.9, y: 8 }} animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9, y: 8 }}
-                    className="absolute top-10 right-0 glass border border-border rounded-2xl p-3 shadow-card-hover z-10 min-w-[190px]">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="text-xs text-text-muted font-medium">Send a tip</p>
-                      <button onClick={() => setShowTip(false)}><X size={13} className="text-text-muted" /></button>
-                    </div>
-                    <div className="grid grid-cols-3 gap-1.5">
-                      {[1, 5, 10, 25, 50, 100].map(amt => (
-                        <button key={amt} onClick={() => handleTip(amt)} disabled={tipping}
-                          className="px-2 py-1.5 rounded-lg bg-accent-amber/10 hover:bg-accent-amber/20 text-accent-amber text-xs font-bold transition-colors border border-accent-amber/15 disabled:opacity-50">
-                          ${amt}
-                        </button>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              <Popover open={showTip} onClose={() => setShowTip(false)}
+                anchor="top-right" className="glass border border-border rounded-2xl p-3 shadow-card-hover min-w-[190px]">
+                <p className="text-xs text-text-muted mb-2 font-medium">Send a tip</p>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {[1, 5, 10, 25, 50, 100].map(amt => (
+                    <button key={amt} onClick={() => handleTip(amt)} disabled={tipping}
+                      className="px-2 py-1.5 rounded-lg bg-accent-amber/10 hover:bg-accent-amber/20 text-accent-amber text-xs font-bold transition-colors border border-accent-amber/15 disabled:opacity-50">
+                      ${amt}
+                    </button>
+                  ))}
+                </div>
+              </Popover>
             </div>
             <Button variant={following ? "secondary" : "primary"} size="sm" onClick={handleFollow} className="gap-1.5">
               <Users size={13} /> {following ? "Following" : "Follow"}
