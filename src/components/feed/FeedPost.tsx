@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -26,6 +26,7 @@ export function FeedPost({ post }: { post: Post }) {
   const [reposted, setReposted] = useState(post.isReposted);
   const [repostCount, setRepostCount] = useState(post.reposts);
   const [showComments, setShowComments] = useState(false);
+  const commentsRef = useRef<HTMLDivElement>(null);
   const [showTip, setShowTip] = useState(false);
   const [tipping, setTipping] = useState(false);
   const [showShare, setShowShare] = useState(false);
@@ -36,6 +37,22 @@ export function FeedPost({ post }: { post: Post }) {
 
   const postDetailUrl = `/posts/${post.id}`;
   const openPost = () => router.push(postDetailUrl);
+
+  // Close comments when clicking outside the comment section
+  useEffect(() => {
+    if (!showComments) return;
+    let removeListener: (() => void) | undefined;
+    const t = setTimeout(() => {
+      const handler = (e: MouseEvent) => {
+        if (commentsRef.current && !commentsRef.current.contains(e.target as Node)) {
+          setShowComments(false);
+        }
+      };
+      document.addEventListener("click", handler);
+      removeListener = () => document.removeEventListener("click", handler);
+    }, 0);
+    return () => { clearTimeout(t); removeListener?.(); };
+  }, [showComments]);
 
   const handleLike = async () => {
     const wasLiked = liked;
@@ -299,7 +316,11 @@ export function FeedPost({ post }: { post: Post }) {
       </div>
       {/* Comments */}
       <AnimatePresence>
-        {showComments && <CommentSection postId={post.id} />}
+        {showComments && (
+          <div ref={commentsRef} onClick={e => e.stopPropagation()}>
+            <CommentSection postId={post.id} />
+          </div>
+        )}
       </AnimatePresence>
     </motion.article>
   );
