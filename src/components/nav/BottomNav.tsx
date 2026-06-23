@@ -16,7 +16,7 @@ const NAV_ITEMS = [
 ];
 
 const MORE_ITEMS = [
-  { href: "/wallet", icon: TrendingUp, label: "Earnings", color: "text-accent-green", bg: "bg-accent-green/15 border-accent-green/20" },
+  { href: "/earnings", icon: TrendingUp, label: "Earnings", color: "text-accent-green", bg: "bg-accent-green/15 border-accent-green/20" },
   { href: "/inner-circle", icon: Crown, label: "Inner Circle", color: "text-accent-amber", bg: "bg-accent-amber/15 border-accent-amber/20" },
   { href: "/licensing", icon: FileText, label: "Licensing", color: "text-primary-light", bg: "bg-primary/15 border-primary/20" },
   { href: "/brain-trust", icon: Brain, label: "Brain Trust", color: "text-accent-cyan", bg: "bg-accent-cyan/15 border-accent-cyan/20" },
