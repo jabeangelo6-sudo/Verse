@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Star, Crown, Users, Lock, Zap, MessageCircle, BadgeCheck, ChevronRight, Sparkles, TrendingUp, Heart } from "lucide-react";
+import { Star, Crown, Users, Lock, Zap, MessageCircle, BadgeCheck, ChevronRight, Sparkles, TrendingUp, Heart, Copy, Check, ExternalLink } from "lucide-react";
 import { TopBar } from "@/components/nav/TopBar";
 import { Button } from "@/components/ui/Button";
 import { Avatar } from "@/components/ui/Avatar";
@@ -40,6 +40,7 @@ export default function InnerCirclePage() {
   const [maxMembers, setMaxMembers] = useState(100);
   const [showSetup, setShowSetup] = useState(false);
   const [inviting, setInviting] = useState<string | null>(null);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   const circleMembers = fans.filter(f => f.inCircle);
   const monthlyRevenue = circleMembers.length * monthlyPrice;
@@ -59,6 +60,17 @@ export default function InnerCirclePage() {
     setCircleActive(true);
     setShowSetup(false);
     toast("success", "Inner Circle is live", `$${monthlyPrice}/mo · ${maxMembers} spots`);
+  };
+
+  const membershipUrl = typeof window !== "undefined"
+    ? `${window.location.origin}/${user?.username ?? "you"}/membership`
+    : "";
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(membershipUrl);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
+    toast("success", "Link copied", "Share it with your audience");
   };
 
   const scoreColor = (score: number) => {
@@ -135,6 +147,31 @@ export default function InnerCirclePage() {
               <div className="text-[10px] text-text-muted">{s.label}</div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Share membership link */}
+      {circleActive && (
+        <div className="px-4 pb-4">
+          <div className="card p-4">
+            <div className="text-xs font-semibold text-text-secondary mb-2">Your membership page</div>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 text-[11px] text-text-muted bg-white/[0.04] px-3 py-2 rounded-lg truncate font-mono">
+                {membershipUrl}
+              </code>
+              <button onClick={handleCopyLink}
+                className="p-2 rounded-lg hover:bg-white/[0.06] text-text-muted hover:text-text-secondary transition-colors flex-shrink-0">
+                {linkCopied ? <Check size={14} className="text-accent-green" /> : <Copy size={14} />}
+              </button>
+              <a href={membershipUrl} target="_blank" rel="noopener noreferrer"
+                className="p-2 rounded-lg hover:bg-white/[0.06] text-text-muted hover:text-text-secondary transition-colors flex-shrink-0">
+                <ExternalLink size={14} />
+              </a>
+            </div>
+            <p className="text-[10px] text-text-muted mt-2">
+              Verse keeps 10% · You keep <span className="text-accent-green font-semibold">{formatUSD(monthlyRevenue * 0.9)}/mo</span> after fees
+            </p>
+          </div>
         </div>
       )}
 
@@ -293,16 +330,23 @@ export default function InnerCirclePage() {
               </div>
 
               <div className="space-y-4">
+                {/* Tier presets */}
                 <div>
-                  <label className="text-xs font-semibold text-text-secondary mb-2 block">Monthly price</label>
-                  <div className="flex gap-2">
-                    {[9, 19, 29, 49].map(p => (
-                      <button key={p} onClick={() => setMonthlyPrice(p)}
-                        className={cn("flex-1 py-2 rounded-xl text-sm font-bold border transition-all",
-                          monthlyPrice === p
-                            ? "bg-accent-amber/15 text-accent-amber border-accent-amber/30"
-                            : "bg-white/[0.04] text-text-secondary border-border hover:border-border-strong")}>
-                        ${p}
+                  <label className="text-xs font-semibold text-text-secondary mb-2 block">Choose a tier</label>
+                  <div className="space-y-2">
+                    {[
+                      { price: 9, label: "Entry", desc: "Early access + DMs", color: "border-primary/30 bg-primary/8 text-primary-light" },
+                      { price: 19, label: "Core", desc: "+ Founding member badge", color: "border-accent-amber/30 bg-accent-amber/8 text-accent-amber" },
+                      { price: 49, label: "Premium", desc: "+ Monthly 1-on-1 call", color: "border-accent-cyan/30 bg-accent-cyan/8 text-accent-cyan" },
+                    ].map(tier => (
+                      <button key={tier.price} onClick={() => setMonthlyPrice(tier.price)}
+                        className={cn("w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all text-left",
+                          monthlyPrice === tier.price ? tier.color : "border-border bg-white/[0.02] text-text-secondary hover:border-border-strong")}>
+                        <div>
+                          <span className="text-sm font-bold">{tier.label}</span>
+                          <span className="text-xs text-text-muted ml-2">{tier.desc}</span>
+                        </div>
+                        <span className="text-sm font-bold">${tier.price}/mo</span>
                       </button>
                     ))}
                   </div>
