@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Ticket, TrendingUp, Star, Lock, ChevronDown } from "lucide-react";
+import { Ticket, Star, Lock, ChevronDown, Zap } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
 import { type Creator } from "@/lib/mock-data";
@@ -10,22 +10,46 @@ import { cn } from "@/lib/utils";
 type Props = { creator: Creator };
 
 const TIERS = [
-  { name: "Founding", slots: 50, price: 0.12, perks: ["Exclusive content forever", "Early access to drops", "Direct message access", "NFT appreciates as creator grows"], color: "from-accent-amber/20 to-accent-amber/5", border: "border-accent-amber/30", badge: "text-accent-amber" },
-  { name: "Supporter", slots: 200, price: 0.04, perks: ["Token-gated content", "Early access to posts", "Supporter badge on profile"], color: "from-primary/20 to-primary/5", border: "border-primary/30", badge: "text-primary-light" },
-  { name: "Fan", slots: 500, price: 0.01, perks: ["Fan badge on profile", "Access to community chat"], color: "from-accent-cyan/15 to-accent-cyan/5", border: "border-accent-cyan/25", badge: "text-accent-cyan" },
+  {
+    name: "Founding",
+    slots: 50,
+    pricePerMonth: 9,
+    perks: ["Exclusive content forever", "Early access to every post", "Direct message access", "Founding member badge"],
+    color: "from-accent-amber/20 to-accent-amber/5",
+    border: "border-accent-amber/30",
+    badge: "text-accent-amber",
+  },
+  {
+    name: "Supporter",
+    slots: 200,
+    pricePerMonth: 4,
+    perks: ["Members-only content", "Early access to posts", "Supporter badge on profile"],
+    color: "from-primary/20 to-primary/5",
+    border: "border-primary/30",
+    badge: "text-primary-light",
+  },
+  {
+    name: "Fan",
+    slots: 500,
+    pricePerMonth: 1,
+    perks: ["Fan badge on profile", "Access to community chat"],
+    color: "from-accent-cyan/15 to-accent-cyan/5",
+    border: "border-accent-cyan/25",
+    badge: "text-accent-cyan",
+  },
 ];
 
 export function SubscriptionNFT({ creator }: Props) {
   const [open, setOpen] = useState(false);
-  const [minting, setMinting] = useState<string | null>(null);
+  const [joining, setJoining] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const handleMint = async (tier: typeof TIERS[0]) => {
-    setMinting(tier.name);
-    await new Promise(r => setTimeout(r, 1800));
-    setMinting(null);
+  const handleJoin = async (tier: typeof TIERS[0]) => {
+    setJoining(tier.name);
+    await new Promise(r => setTimeout(r, 1600));
+    setJoining(null);
     setOpen(false);
-    toast("success", `Minted ${tier.name} Subscriber NFT #${Math.floor(Math.random() * tier.slots) + 1}`, `${tier.price} ETH`);
+    toast("success", `You're now a ${tier.name} member of @${creator.username}!`, `$${tier.pricePerMonth}/mo · Cancel anytime`);
   };
 
   return (
@@ -39,8 +63,8 @@ export function SubscriptionNFT({ creator }: Props) {
             <Ticket size={16} className="text-white" />
           </div>
           <div className="text-left">
-            <div className="text-sm font-bold text-text-primary">Subscription NFTs</div>
-            <div className="text-xs text-text-muted">Own your subscription · Resell anytime</div>
+            <div className="text-sm font-bold text-text-primary">Founding Memberships</div>
+            <div className="text-xs text-text-muted">Join early · Lock in founding pricing forever</div>
           </div>
         </div>
         <ChevronDown size={16} className={cn("text-text-muted transition-transform duration-200", open && "rotate-180")} />
@@ -57,7 +81,7 @@ export function SubscriptionNFT({ creator }: Props) {
           >
             <div className="px-4 pb-4 space-y-2 border-t border-border pt-3">
               <p className="text-xs text-text-muted mb-3">
-                Your subscription is an NFT you own. Early subscriber NFTs appreciate as <span className="text-text-primary font-medium">@{creator.username}</span> grows.
+                Become a founding member of <span className="text-text-primary font-medium">@{creator.username}</span>. Founding rates are locked in for life — prices never go up for early members.
               </p>
               {TIERS.map(tier => (
                 <div key={tier.name} className={cn("rounded-xl p-3 bg-gradient-to-r border", tier.color, tier.border)}>
@@ -65,9 +89,12 @@ export function SubscriptionNFT({ creator }: Props) {
                     <div className="flex items-center gap-2">
                       <Star size={12} className={cn("fill-current", tier.badge)} />
                       <span className={cn("text-sm font-bold", tier.badge)}>{tier.name}</span>
-                      <span className="text-xs text-text-muted">· {tier.slots} total</span>
+                      <span className="text-xs text-text-muted">· {tier.slots} spots</span>
                     </div>
-                    <span className="text-sm font-bold text-text-primary">{tier.price} ETH</span>
+                    <div className="text-right">
+                      <span className="text-sm font-bold text-text-primary">${tier.pricePerMonth}</span>
+                      <span className="text-[10px] text-text-muted">/mo</span>
+                    </div>
                   </div>
                   <ul className="space-y-1 mb-3">
                     {tier.perks.map(p => (
@@ -80,16 +107,16 @@ export function SubscriptionNFT({ creator }: Props) {
                     variant="secondary"
                     size="sm"
                     fullWidth
-                    loading={minting === tier.name}
-                    onClick={() => handleMint(tier)}
+                    loading={joining === tier.name}
+                    onClick={() => handleJoin(tier)}
                     className="text-xs"
                   >
-                    <TrendingUp size={11} /> Mint NFT
+                    <Zap size={11} /> Join as {tier.name}
                   </Button>
                 </div>
               ))}
-              <p className="text-[10px] text-text-muted text-center pt-1">
-                NFTs tradeable on any marketplace · 10% royalty to creator on resale
+              <p className="text-[10px] text-text-muted text-center pt-1 flex items-center justify-center gap-1">
+                <Lock size={9} /> Cancel anytime · Founding rate locked forever
               </p>
             </div>
           </motion.div>
