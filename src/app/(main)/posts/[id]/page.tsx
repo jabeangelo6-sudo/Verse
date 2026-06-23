@@ -43,8 +43,6 @@ function toPost(data: { post: Record<string, unknown>; creator: Record<string, u
     tags: Array.isArray(p.tags) ? p.tags : [],
     humanityScore: Number(p.humanityScore ?? 85),
     isHumanVerified: Boolean(p.isHumanVerified ?? p.is_human_verified),
-    hasVoice: Boolean(p.hasVoice),
-    voiceLanguages: Boolean(p.hasVoice) ? ["en", "es", "fr"] : undefined,
     hasStake: Boolean(p.hasStake),
     stakeTopic: p.stakeTopic ? String(p.stakeTopic) : undefined,
     stakeAmount: p.stakeAmount != null ? Number(p.stakeAmount) : undefined,
