@@ -2,7 +2,6 @@ const config = {
   name: "Verse",
   tagline: "Own Your Audience. Forever.",
   description: "The creator platform where your audience, content, and earnings belong to you. No algorithms. No middlemen.",
-  ticker: "VERSE",
   domain: "verse-po2e.vercel.app",
   twitter: "@verseapp",
   logo: {
