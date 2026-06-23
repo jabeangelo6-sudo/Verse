@@ -254,7 +254,7 @@ export function FeedPost({ post }: { post: Post }) {
           <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowTip(v => !v)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-accent-amber hover:bg-accent-amber/10 transition-all border border-accent-amber/0 hover:border-accent-amber/20">
             <Zap size={14} className="fill-accent-amber" />
-            <span>${post.tipsUSD > 0 ? post.tipsUSD.toFixed(0) : "Tip"}</span>
+            <span>Tip</span>
           </motion.button>
           <AnimatePresence>
             {showTip && (
