@@ -13,7 +13,7 @@ const MAIN_NAV = [
   { href: "/explore", icon: Compass, label: "Explore" },
   { href: "/create", icon: PlusSquare, label: "Create" },
   { href: "/notifications", icon: Bell, label: "Notifications", badge: 3 },
-  { href: "/wallet", icon: TrendingUp, label: "Earnings" },
+  { href: "/earnings", icon: TrendingUp, label: "Earnings" },
 ];
 
 const EARN_NAV = [
