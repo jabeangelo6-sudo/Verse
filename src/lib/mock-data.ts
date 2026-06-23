@@ -46,8 +46,6 @@ export type Post = {
   stakeTopic?: string;
   stakeDeadline?: Date;
   collaborators?: { creator: Creator; splitPercent: number }[];
-  hasVoice: boolean;
-  voiceLanguages?: string[];
   anonymousExpert?: { credential: string; zkProof: string };
 };
 
@@ -182,8 +180,6 @@ export const MOCK_POSTS: Post[] = [
     humanityScore: 98,
     isHumanVerified: true,
     hasStake: false,
-    hasVoice: true,
-    voiceLanguages: ["en", "es", "fr", "de", "pt"],
   },
   {
     id: "p2",
@@ -204,7 +200,6 @@ export const MOCK_POSTS: Post[] = [
     humanityScore: 99,
     isHumanVerified: true,
     hasStake: false,
-    hasVoice: false,
   },
   {
     id: "p3",
@@ -224,8 +219,6 @@ export const MOCK_POSTS: Post[] = [
     humanityScore: 97,
     isHumanVerified: true,
     hasStake: false,
-    hasVoice: true,
-    voiceLanguages: ["en", "es", "fr", "pt"],
   },
   {
     id: "p4",
@@ -245,7 +238,6 @@ export const MOCK_POSTS: Post[] = [
     humanityScore: 95,
     isHumanVerified: true,
     hasStake: false,
-    hasVoice: false,
   },
   {
     id: "p5",
@@ -266,7 +258,6 @@ export const MOCK_POSTS: Post[] = [
     humanityScore: 72,
     isHumanVerified: false,
     hasStake: false,
-    hasVoice: false,
   },
   {
     id: "p6",
@@ -287,7 +278,6 @@ export const MOCK_POSTS: Post[] = [
     humanityScore: 96,
     isHumanVerified: true,
     hasStake: false,
-    hasVoice: false,
     collaborators: [
       { creator: MOCK_CREATORS[2], splitPercent: 20 },
     ],
@@ -311,8 +301,6 @@ export const MOCK_POSTS: Post[] = [
     humanityScore: 99,
     isHumanVerified: true,
     hasStake: false,
-    hasVoice: true,
-    voiceLanguages: ["en", "es", "fr"],
   },
   {
     id: "p8",
@@ -337,7 +325,6 @@ export const MOCK_POSTS: Post[] = [
     stakeNo: 890,
     stakeTopic: "Tutorial culture is making music more generic",
     stakeDeadline: new Date("2026-12-31"),
-    hasVoice: false,
   },
   {
     id: "p9",
@@ -358,7 +345,6 @@ export const MOCK_POSTS: Post[] = [
     humanityScore: 99,
     isHumanVerified: true,
     hasStake: false,
-    hasVoice: false,
     collaborators: [
       { creator: MOCK_CREATORS[4], splitPercent: 25 },
     ],
@@ -381,8 +367,6 @@ export const MOCK_POSTS: Post[] = [
     humanityScore: 97,
     isHumanVerified: true,
     hasStake: false,
-    hasVoice: true,
-    voiceLanguages: ["en", "es", "fr", "de", "pt", "hi"],
   },
 ];
 
