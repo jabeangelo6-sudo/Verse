@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     // Create onboarding link
     const link = await stripe("/account_links", {
       account: account.id,
-      refresh_url: `${APP_URL}/wallet?stripe=refresh`,
+      refresh_url: `${APP_URL}/earnings?stripe=refresh`,
       return_url: `${APP_URL}/api/stripe/callback?account=${account.id}&userId=${userId}`,
       type: "account_onboarding",
     });
