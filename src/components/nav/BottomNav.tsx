@@ -219,14 +219,12 @@ export function BottomNav() {
         </div>
       </nav>
 
-      {/* Shared backdrop — z-[49] so sheets at z-50 always sit above it */}
-      <AnimatePresence>
-        {(showMore || showSheet) && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, transition: { duration: 0 } }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[49] md:hidden"
-            onClick={() => { closeMore(); closeSheet(); }} />
-        )}
-      </AnimatePresence>
+      {/* Shared backdrop — unmounts immediately (no AnimatePresence) so blur vanishes instantly */}
+      {(showMore || showSheet) && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.18 }}
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[49] md:hidden"
+          onClick={() => { closeMore(); closeSheet(); }} />
+      )}
 
       {/* More sheet — only mounted after first open, never shares DOM with Create sheet */}
       {moreMounted && (
