@@ -1,8 +1,9 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Lock, Globe, Sparkles, Loader2, Send, Zap, Target, Link2, X, ImageIcon, Video, Users2, Search, Plus, Minus } from "lucide-react";
+import { ArrowLeft, Lock, Globe, Sparkles, Loader2, Send, Zap, Target, Link2, X, ImageIcon, Video, Users2, Search, Plus, Minus, Camera, MapPin, Calendar, Shield } from "lucide-react";
 import { mediaStore } from "@/lib/media-store";
+import { readImageExif, type ExifData } from "@/lib/exif";
 import { uploadMedia } from "@/lib/upload";
 import { buildShareText } from "@/lib/generate-cta";
 import { Button } from "@/components/ui/Button";
@@ -40,10 +41,19 @@ export default function CreatePage() {
   const { isConnected } = useIntegrations();
   const [pendingMedia, setPendingMedia] = useState<{ url: string; type: "image" | "video"; name: string; file?: File } | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [exif, setExif] = useState<ExifData | null>(null);
+  const [exifReading, setExifReading] = useState(false);
 
   useEffect(() => {
     const m = mediaStore.get();
-    if (m) { setPendingMedia(m); mediaStore.clear(); }
+    if (m) {
+      setPendingMedia(m);
+      mediaStore.clear();
+      if (m.file && m.type === "image") {
+        setExifReading(true);
+        readImageExif(m.file).then(data => { setExif(data); setExifReading(false); });
+      }
+    }
   }, []);
   const router = useRouter();
   const [content, setContent] = useState("");
@@ -249,6 +259,53 @@ export default function CreatePage() {
                 <span className="text-[10px] text-white font-medium">{pendingMedia.type === "image" ? "Photo" : "Video"}</span>
               </div>
             </motion.div>
+          )}
+
+          {/* EXIF provenance strip */}
+          {pendingMedia?.type === "image" && (
+            <div className={cn("rounded-xl border px-3 py-2.5 text-xs transition-all",
+              exif ? "border-accent-green/20 bg-accent-green/5" : "border-border bg-white/[0.02]")}>
+              {exifReading && (
+                <div className="flex items-center gap-2 text-text-muted">
+                  <Loader2 size={11} className="animate-spin" /> Reading metadata…
+                </div>
+              )}
+              {!exifReading && exif && (
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-1.5 text-accent-green font-semibold mb-1">
+                    <Shield size={11} /> EXIF metadata found
+                  </div>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                    {(exif.make || exif.model) && (
+                      <div className="flex items-center gap-1.5 text-text-muted col-span-2">
+                        <Camera size={10} className="flex-shrink-0" />
+                        <span className="truncate">{[exif.make, exif.model].filter(Boolean).join(" ")}</span>
+                      </div>
+                    )}
+                    {exif.dateTaken && (
+                      <div className="flex items-center gap-1.5 text-text-muted">
+                        <Calendar size={10} className="flex-shrink-0" />
+                        <span>{exif.dateTaken.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                      </div>
+                    )}
+                    {exif.gpsAvailable && (
+                      <div className="flex items-center gap-1.5 text-text-muted">
+                        <MapPin size={10} className="flex-shrink-0" />
+                        <span>Location data present</span>
+                      </div>
+                    )}
+                  </div>
+                  {exif.software && (
+                    <p className="text-[10px] text-text-muted mt-1">Processed with: {exif.software}</p>
+                  )}
+                </div>
+              )}
+              {!exifReading && !exif && pendingMedia && (
+                <div className="flex items-center gap-2 text-text-muted">
+                  <Shield size={11} /> No EXIF metadata — provenance unverified
+                </div>
+              )}
+            </div>
           )}
 
           {/* Visibility */}
