@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, MessageCircle, Repeat2, Zap, MoreHorizontal, Lock, BadgeCheck, TrendingUp, Users2, Share2, Copy, Check, ExternalLink, Flag, EyeOff, UserX, Link as LinkIcon } from "lucide-react";
+import { Heart, MessageCircle, Repeat2, Zap, MoreHorizontal, Lock, BadgeCheck, TrendingUp, Users2, Share2, Copy, Check, ExternalLink, Flag, EyeOff, UserX, Link as LinkIcon, Bookmark } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -33,6 +33,7 @@ export function FeedPost({ post }: { post: Post }) {
   const [shareCopied, setShareCopied] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [hidden, setHidden] = useState(false);
+  const [saved, setSaved] = useState(false);
   const { toast } = useToast();
 
   const postDetailUrl = `/posts/${post.id}`;
@@ -108,6 +109,11 @@ export function FeedPost({ post }: { post: Post }) {
     const castText = `"${post.content.slice(0, 200)}"\n\n— @${post.creator.username} on Verse`;
     window.open(`https://warpcast.com/~/compose?text=${encodeURIComponent(castText)}&embeds[]=${encodeURIComponent(postUrl)}`, "_blank");
     setShowShare(false);
+  };
+
+  const handleSave = () => {
+    setSaved(v => !v);
+    toast(saved ? "info" : "success", saved ? "Removed from saved" : "Post saved");
   };
 
   if (hidden) return null;
@@ -293,7 +299,15 @@ export function FeedPost({ post }: { post: Post }) {
           </div>
         </div>
 
-        {/* Tip */}
+        <div className="flex items-center gap-1">
+          {/* Save */}
+          <motion.button whileTap={{ scale: 0.85 }} onClick={handleSave}
+            className={cn("flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all",
+              saved ? "text-primary-light bg-primary/10" : "text-text-muted hover:text-primary-light hover:bg-primary/8")}>
+            <Bookmark size={15} className={cn(saved && "fill-primary-light")} />
+          </motion.button>
+
+          {/* Tip */}
         <div className="relative">
           <motion.button whileTap={{ scale: 0.95 }} onClick={() => setShowTip(v => !v)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-accent-amber hover:bg-accent-amber/10 transition-all border border-accent-amber/0 hover:border-accent-amber/20">
@@ -312,6 +326,7 @@ export function FeedPost({ post }: { post: Post }) {
               ))}
             </div>
           </Popover>
+        </div>
         </div>
       </div>
       {/* Comments */}
