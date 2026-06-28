@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, MessageCircle, Repeat2, Zap, MoreHorizontal, Lock, BadgeCheck, TrendingUp, Users2, Share2, Copy, Check, ExternalLink, Flag, EyeOff, UserX, Link as LinkIcon, Bookmark } from "lucide-react";
+import { Heart, MessageCircle, Repeat2, Zap, MoreHorizontal, Lock, BadgeCheck, TrendingUp, Users2, Share2, Copy, Check, ExternalLink, Flag, EyeOff, UserX, Link as LinkIcon, Bookmark, FileText, Upload, X, Shield } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -34,6 +34,14 @@ export function FeedPost({ post }: { post: Post }) {
   const [showMenu, setShowMenu] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [showLicenseFlow, setShowLicenseFlow] = useState(false);
+  const [licenseStep, setLicenseStep] = useState<1 | 2 | 3>(1);
+  const [attestation, setAttestation] = useState(false);
+  const [peopleOption, setPeopleOption] = useState<"no" | "yes-release" | "yes-news" | null>(null);
+  const [releaseUploaded, setReleaseUploaded] = useState(false);
+  const [listingAsLicensable, setListingAsLicensable] = useState(false);
+  const [isLicensable, setIsLicensable] = useState(false);
+  const [commercialCleared, setCommercialCleared] = useState(false);
   const { toast } = useToast();
 
   const postDetailUrl = `/posts/${post.id}`;
@@ -178,6 +186,17 @@ export function FeedPost({ post }: { post: Post }) {
                 className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-text-secondary hover:text-text-primary hover:bg-white/[0.05] transition-colors">
                 <ExternalLink size={13} className="text-text-muted" /> Open post
               </button>
+              {!isLicensable && (
+                <button onClick={() => { setShowMenu(false); setLicenseStep(1); setAttestation(false); setPeopleOption(null); setReleaseUploaded(false); setShowLicenseFlow(true); }}
+                  className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-text-secondary hover:text-text-primary hover:bg-white/[0.05] transition-colors">
+                  <FileText size={13} className="text-text-muted" /> List for licensing
+                </button>
+              )}
+              {isLicensable && (
+                <button className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-accent-green cursor-default">
+                  <Check size={13} /> Listed for licensing
+                </button>
+              )}
               <div className="h-px bg-border mx-3 my-1" />
               <button onClick={() => { setHidden(true); setShowMenu(false); toast("success", "Post hidden"); }}
                 className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-text-secondary hover:text-text-primary hover:bg-white/[0.05] transition-colors">
@@ -335,6 +354,162 @@ export function FeedPost({ post }: { post: Post }) {
           <div ref={commentsRef} onClick={e => e.stopPropagation()}>
             <CommentSection postId={post.id} />
           </div>
+        )}
+      </AnimatePresence>
+
+      {/* License flow modal */}
+      <AnimatePresence>
+        {showLicenseFlow && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/70 z-50 flex items-end md:items-center md:justify-center"
+            onClick={() => setShowLicenseFlow(false)}>
+            <motion.div initial={{ y: 60 }} animate={{ y: 0 }} exit={{ y: 60 }}
+              className="w-full md:max-w-lg bg-bg-elevated border border-border rounded-t-3xl md:rounded-2xl p-6"
+              onClick={e => e.stopPropagation()}>
+
+              {/* Progress */}
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs text-text-muted">Step {licenseStep} of 3</span>
+                <button onClick={() => setShowLicenseFlow(false)} className="text-text-muted hover:text-text-secondary"><X size={17} /></button>
+              </div>
+              <div className="flex gap-1 mb-5">
+                {[1, 2, 3].map(s => (
+                  <div key={s} className={cn("h-0.5 flex-1 rounded-full transition-colors", s <= licenseStep ? "bg-primary" : "bg-white/[0.08]")} />
+                ))}
+              </div>
+
+              {/* Step 1 — Ownership attestation */}
+              {licenseStep === 1 && (
+                <>
+                  <h3 className="text-base font-bold text-text-primary mb-1">Confirm ownership</h3>
+                  <p className="text-xs text-text-muted mb-4 leading-relaxed">
+                    By listing this content for licensing, you make a legal representation that you own or control all rights to it.
+                  </p>
+                  <button onClick={() => setAttestation(v => !v)}
+                    className={cn("w-full flex items-start gap-3 p-4 rounded-xl border text-left transition-all mb-5",
+                      attestation ? "border-accent-green/40 bg-accent-green/5" : "border-border hover:border-border-strong")}>
+                    <div className={cn("w-4 h-4 rounded border-2 flex-shrink-0 mt-0.5 flex items-center justify-center transition-all",
+                      attestation ? "bg-accent-green border-accent-green" : "border-border-strong")}>
+                      {attestation && <Check size={10} className="text-white" />}
+                    </div>
+                    <p className="text-xs text-text-secondary leading-relaxed">
+                      I created this content and own or control all rights to license it. I understand that false claims make me liable to Verse, licensees, and any affected third parties.
+                    </p>
+                  </button>
+                  <Button variant="primary" size="sm" className="w-full" disabled={!attestation}
+                    onClick={() => setLicenseStep(2)}>
+                    Continue
+                  </Button>
+                </>
+              )}
+
+              {/* Step 2 — People / model releases */}
+              {licenseStep === 2 && (
+                <>
+                  <h3 className="text-base font-bold text-text-primary mb-1">Identifiable people</h3>
+                  <p className="text-xs text-text-muted mb-4 leading-relaxed">
+                    Commercial licenses (ads, brands, marketing) require a signed model release for every identifiable person in the content.
+                  </p>
+                  <div className="space-y-2 mb-4">
+                    {[
+                      { val: "no" as const, label: "No identifiable people", sub: "All license tiers available, including commercial", icon: <Check size={14} className="text-accent-green" /> },
+                      { val: "yes-release" as const, label: "Yes — I have signed model releases", sub: "Upload PDF releases to unlock commercial licensing", icon: <Upload size={14} className="text-accent-cyan" /> },
+                      { val: "yes-news" as const, label: "Yes — newsworthy public event", sub: "Editorial licenses only. No commercial use.", icon: <Shield size={14} className="text-accent-amber" /> },
+                    ].map(opt => (
+                      <button key={opt.val} onClick={() => setPeopleOption(opt.val)}
+                        className={cn("w-full flex items-center gap-3 p-3.5 rounded-xl border text-left transition-all",
+                          peopleOption === opt.val ? "border-primary/40 bg-primary/8" : "border-border hover:border-border-strong")}>
+                        <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0",
+                          peopleOption === opt.val ? "bg-primary/20" : "bg-white/[0.04]")}>
+                          {opt.icon}
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-text-primary">{opt.label}</p>
+                          <p className="text-[11px] text-text-muted mt-0.5">{opt.sub}</p>
+                        </div>
+                        {peopleOption === opt.val && <Check size={13} className="text-primary-light ml-auto flex-shrink-0" />}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Model release upload */}
+                  {peopleOption === "yes-release" && (
+                    <div className={cn("rounded-xl border p-3 mb-4 transition-all",
+                      releaseUploaded ? "border-accent-green/30 bg-accent-green/5" : "border-dashed border-border")}>
+                      {releaseUploaded ? (
+                        <div className="flex items-center gap-2 text-xs text-accent-green font-semibold">
+                          <Check size={13} /> Model release uploaded
+                        </div>
+                      ) : (
+                        <label className="flex flex-col items-center gap-1.5 cursor-pointer py-2">
+                          <Upload size={18} className="text-text-muted" />
+                          <span className="text-xs text-text-muted">Upload signed release (PDF)</span>
+                          <input type="file" accept=".pdf,.jpg,.png" className="hidden"
+                            onChange={() => setReleaseUploaded(true)} />
+                        </label>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="flex gap-2">
+                    <Button variant="secondary" size="sm" className="flex-1" onClick={() => setLicenseStep(1)}>Back</Button>
+                    <Button variant="primary" size="sm" className="flex-1"
+                      disabled={!peopleOption || (peopleOption === "yes-release" && !releaseUploaded)}
+                      onClick={() => setLicenseStep(3)}>
+                      Continue
+                    </Button>
+                  </div>
+                </>
+              )}
+
+              {/* Step 3 — Confirm & list */}
+              {licenseStep === 3 && (
+                <>
+                  <h3 className="text-base font-bold text-text-primary mb-1">Ready to list</h3>
+                  <div className="rounded-xl border border-border bg-white/[0.02] p-4 mb-4 space-y-2.5">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-text-muted">Ownership</span>
+                      <span className="text-accent-green font-semibold flex items-center gap-1"><Check size={10} /> Attested</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-text-muted">Commercial use</span>
+                      {(peopleOption === "no" || peopleOption === "yes-release") ? (
+                        <span className="text-accent-green font-semibold flex items-center gap-1"><Check size={10} /> Cleared</span>
+                      ) : (
+                        <span className="text-accent-amber font-semibold">Editorial only</span>
+                      )}
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-text-muted">Available tiers</span>
+                      <span className="text-text-primary font-semibold">
+                        {(peopleOption === "no" || peopleOption === "yes-release")
+                          ? "Blog · News · Commercial · Broadcast"
+                          : "Blog · News"}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-text-muted mb-4 leading-relaxed">
+                    This post will appear in the Content Licensing marketplace. Journalists and outlets can browse and license it directly.
+                  </p>
+                  <div className="flex gap-2">
+                    <Button variant="secondary" size="sm" className="flex-1" onClick={() => setLicenseStep(2)}>Back</Button>
+                    <Button variant="primary" size="sm" className="flex-1" loading={listingAsLicensable}
+                      onClick={async () => {
+                        setListingAsLicensable(true);
+                        await new Promise(r => setTimeout(r, 1000));
+                        setListingAsLicensable(false);
+                        setIsLicensable(true);
+                        setCommercialCleared(peopleOption === "no" || peopleOption === "yes-release");
+                        setShowLicenseFlow(false);
+                        toast("success", "Listed for licensing", "Visible in the Content Licensing marketplace");
+                      }}>
+                      List for licensing
+                    </Button>
+                  </div>
+                </>
+              )}
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
     </motion.article>
