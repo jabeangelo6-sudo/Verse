@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FileText, DollarSign, Shield, Check, Search, BookOpen, Newspaper, Megaphone, Tv, Video, BarChart2, Filter, Download, Package, Eye, BadgeCheck, Zap, ChevronRight, X, Image } from "lucide-react";
+import { FileText, DollarSign, Shield, Check, Search, BookOpen, Newspaper, Megaphone, Tv, Video, BarChart2, Filter, Download, Package, Eye, BadgeCheck, Zap, ChevronRight, X, Image, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { TopBar } from "@/components/nav/TopBar";
 import { Avatar } from "@/components/ui/Avatar";
@@ -28,6 +28,7 @@ interface LicensablePiece {
   tags: string[];
   createdAt: Date;
   exclusive: boolean;
+  commercialCleared: boolean;
   mediaThumb: string | null;
 }
 
@@ -68,7 +69,7 @@ const MOCK_CONTENT: LicensablePiece[] = [
     content: "17-second clip from fire escape, 3rd floor. Clear view of east wall collapse. Timestamped 22:14. Audio intact. No edits.",
     creator: { username: "miriam_w", displayName: "Miriam Weiss", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=miriam", verified: false },
     topic: "local", views: 84000, licenses: 3, tags: ["breaking", "fire", "detroit"],
-    createdAt: new Date(Date.now() - 2 * 3600 * 1000), exclusive: false,
+    createdAt: new Date(Date.now() - 2 * 3600 * 1000), exclusive: false, commercialCleared: false,
     mediaThumb: "https://picsum.photos/seed/fire9/600/300",
   },
   {
@@ -77,7 +78,7 @@ const MOCK_CONTENT: LicensablePiece[] = [
     content: "48,000-row dataset. Overtime spiked 340% during protest months. Raw CSV + cleaned summary sheet. Source: public records request #2023-4471.",
     creator: { username: "opengov_felix", displayName: "Felix Huang", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=felix", verified: true },
     topic: "politics", views: 220000, licenses: 19, tags: ["police", "foia", "chicago", "data"],
-    createdAt: new Date(Date.now() - 24 * 3600 * 1000), exclusive: false, mediaThumb: null,
+    createdAt: new Date(Date.now() - 24 * 3600 * 1000), exclusive: false, commercialCleared: true, mediaThumb: null,
   },
   {
     id: "l3", format: "photo",
@@ -85,7 +86,7 @@ const MOCK_CONTENT: LicensablePiece[] = [
     content: "Shot over 3 hours, sunrise to 9am. Families, processing tents, National Guard presence. Full-res RAW files. GPS metadata intact.",
     creator: { username: "camila_foto", displayName: "Camila Reyes", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=camila", verified: true },
     topic: "politics", views: 680000, licenses: 27, tags: ["border", "immigration", "photos"],
-    createdAt: new Date(Date.now() - 5 * 3600 * 1000), exclusive: true,
+    createdAt: new Date(Date.now() - 5 * 3600 * 1000), exclusive: true, commercialCleared: false,
     mediaThumb: "https://picsum.photos/seed/desert7/600/300",
   },
   {
@@ -94,7 +95,7 @@ const MOCK_CONTENT: LicensablePiece[] = [
     content: "Present for two key votes. Names redacted by request. First public account of decisions made between Feb 27–March 8. Source has been verified.",
     creator: { username: "banksource", displayName: "Verified Source", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=source99", verified: true },
     topic: "business", views: 1400000, licenses: 44, tags: ["svb", "banking", "exclusive", "finance"],
-    createdAt: new Date(Date.now() - 3 * 86400 * 1000), exclusive: false, mediaThumb: null,
+    createdAt: new Date(Date.now() - 3 * 86400 * 1000), exclusive: false, commercialCleared: true, mediaThumb: null,
   },
   {
     id: "l5", format: "video",
@@ -102,7 +103,7 @@ const MOCK_CONTENT: LicensablePiece[] = [
     content: "Continuous take, no cuts. Original metadata preserved. Crowd size clearly visible from angle. Recording stopped at 11:42am due to battery.",
     creator: { username: "dc_ground", displayName: "Terrence Gray", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=terrence", verified: false },
     topic: "politics", views: 3200000, licenses: 88, tags: ["protest", "dc", "video"],
-    createdAt: new Date(Date.now() - 8 * 3600 * 1000), exclusive: false,
+    createdAt: new Date(Date.now() - 8 * 3600 * 1000), exclusive: false, commercialCleared: false,
     mediaThumb: "https://picsum.photos/seed/crowd4/600/300",
   },
   {
@@ -111,7 +112,7 @@ const MOCK_CONTENT: LicensablePiece[] = [
     content: "Anonymized by role and department. Pay gaps by gender and race visible in raw data. Verified by two independent sources.",
     creator: { username: "equityleak", displayName: "Equity Source", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=equity", verified: true },
     topic: "business", views: 920000, licenses: 31, tags: ["pay-gap", "corporate", "data"],
-    createdAt: new Date(Date.now() - 12 * 3600 * 1000), exclusive: true, mediaThumb: null,
+    createdAt: new Date(Date.now() - 12 * 3600 * 1000), exclusive: true, commercialCleared: true, mediaThumb: null,
   },
 ];
 
@@ -231,6 +232,15 @@ export default function LicensingPage() {
                       <span className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold capitalize", FORMAT_COLORS[piece.format])}>
                         {FORMAT_ICONS[piece.format]} {piece.format}
                       </span>
+                      {piece.commercialCleared ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold text-accent-green bg-accent-green/10">
+                          <Check size={9} /> Commercial cleared
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold text-accent-amber bg-accent-amber/10">
+                          <Lock size={9} /> Editorial only
+                        </span>
+                      )}
                       {piece.exclusive && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold text-accent-amber bg-accent-amber/10">
                           <Zap size={9} className="fill-accent-amber" /> Exclusive
@@ -359,25 +369,37 @@ export default function LicensingPage() {
               <h3 className="text-base font-bold text-text-primary mb-0.5">Choose a license</h3>
               <p className="text-xs text-text-muted mb-4 line-clamp-1">{selectedPiece.headline}</p>
 
+              {!selectedPiece.commercialCleared && (
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-accent-amber/8 border border-accent-amber/20 mb-3">
+                  <Lock size={12} className="text-accent-amber flex-shrink-0" />
+                  <p className="text-[11px] text-accent-amber leading-snug">Commercial &amp; Broadcast require a model release. This content is available for editorial use only.</p>
+                </div>
+              )}
               <div className="space-y-2 mb-4">
-                {LICENSE_TIERS.map(t => (
-                  <button key={t.id} onClick={() => setSelectedTier(t.id)}
-                    className={cn("w-full flex items-center gap-3 p-3 rounded-xl border transition-all text-left",
-                      selectedTier === t.id ? "border-primary/40 bg-primary/8" : "border-border hover:border-border-strong")}>
-                    <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0",
-                      selectedTier === t.id ? "bg-primary/20 text-primary-light" : "bg-white/[0.04] text-text-muted")}>
-                      {t.icon}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-text-primary">{t.label}</span>
-                        <span className="text-sm font-bold text-accent-amber">${t.price}</span>
+                {LICENSE_TIERS.map(t => {
+                  const locked = !selectedPiece.commercialCleared && (t.id === "commercial" || t.id === "broadcast");
+                  return (
+                    <button key={t.id} onClick={() => !locked && setSelectedTier(t.id)} disabled={locked}
+                      className={cn("w-full flex items-center gap-3 p-3 rounded-xl border transition-all text-left",
+                        locked ? "opacity-40 cursor-not-allowed border-border" :
+                        selectedTier === t.id ? "border-primary/40 bg-primary/8" : "border-border hover:border-border-strong")}>
+                      <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0",
+                        locked ? "bg-white/[0.04] text-text-muted" :
+                        selectedTier === t.id ? "bg-primary/20 text-primary-light" : "bg-white/[0.04] text-text-muted")}>
+                        {locked ? <Lock size={14} /> : t.icon}
                       </div>
-                      <div className="text-xs text-text-muted">{t.description}</div>
-                    </div>
-                    {selectedTier === t.id && <Check size={14} className="text-primary-light flex-shrink-0" />}
-                  </button>
-                ))}
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-semibold text-text-primary">{t.label}</span>
+                          {locked ? <span className="text-xs text-text-muted">Model release required</span>
+                            : <span className="text-sm font-bold text-accent-amber">${t.price}</span>}
+                        </div>
+                        <div className="text-xs text-text-muted">{t.description}</div>
+                      </div>
+                      {!locked && selectedTier === t.id && <Check size={14} className="text-primary-light flex-shrink-0" />}
+                    </button>
+                  );
+                })}
               </div>
 
               <div className="bg-white/[0.03] rounded-xl p-3 mb-4 space-y-1">
@@ -424,6 +446,9 @@ export default function LicensingPage() {
                   ["License type", certTierLabel],
                   ["Content", <span key="content" className="max-w-[60%] text-right line-clamp-1">{showCert.piece.headline}</span>],
                   ["Creator", `@${showCert.piece.creator.username}`],
+                  ["Permitted use", showCert.piece.commercialCleared
+                    ? <span key="use" className="text-accent-green font-bold">Editorial + Commercial</span>
+                    : <span key="use" className="text-accent-amber font-bold">Editorial only</span>],
                   ["Issued", new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })],
                 ].map(([label, value]) => (
                   <div key={String(label)} className="flex justify-between items-start text-xs">
@@ -433,7 +458,7 @@ export default function LicensingPage() {
                 ))}
                 <div className="border-t border-accent-green/20 pt-2.5">
                   <p className="text-[10px] text-text-muted leading-relaxed">
-                    This certificate grants the licensee rights per the selected tier. Creator retains copyright. Usage outside the licensed scope requires a new license.
+                    This certificate grants the licensee rights per the selected tier. {showCert.piece.commercialCleared ? "Commercial use is cleared per model releases on file." : "This content is licensed for editorial use only — advertising, product marketing, or commercial promotion is prohibited."} Creator retains copyright. Usage outside the licensed scope requires a new license.
                   </p>
                 </div>
               </div>
