@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FileText, DollarSign, Shield, Check, Search, BookOpen, Newspaper, Megaphone, Tv, Video, BarChart2, Filter, Download, Package, Eye, BadgeCheck, Zap, ChevronRight, X, Image } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { TopBar } from "@/components/nav/TopBar";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
@@ -124,6 +125,7 @@ function timeAgoShort(d: Date) {
 export default function LicensingPage() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const router = useRouter();
   const [tab, setTab] = useState<Tab>("discover");
   const [query, setQuery] = useState("");
   const [format, setFormat] = useState<Format>("all");
@@ -322,7 +324,7 @@ export default function LicensingPage() {
                           className="flex items-center gap-1.5 text-xs font-semibold text-primary-light hover:underline">
                           <Download size={12} /> Certificate
                         </button>
-                        <button onClick={() => toast("info", "Outlet marketplace coming soon")}
+                        <button onClick={() => router.push("/outlet-market")}
                           className="flex items-center gap-1.5 text-xs font-semibold text-accent-cyan hover:underline">
                           <Package size={12} /> Package for outlet
                         </button>
@@ -335,7 +337,7 @@ export default function LicensingPage() {
                   <p className="text-xs text-text-muted mb-2">
                     Bundle your licensed content into a story package and sell it directly to media outlets and brands.
                   </p>
-                  <Button variant="secondary" size="sm" onClick={() => toast("info", "Outlet marketplace coming soon")}>
+                  <Button variant="secondary" size="sm" onClick={() => router.push("/outlet-market")}>
                     Open outlet marketplace <ChevronRight size={12} className="ml-1" />
                   </Button>
                 </div>
